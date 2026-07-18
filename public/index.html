@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f04b2f" />
+    <meta name="description" content="Shakshuka Sunday — a nine-person brunch on 19 July 2026." />
+    <title>Shakshuka Sunday · 19 July</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="paper-noise" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Shakshuka Sunday home">
+        <span class="brand-sun">☀</span>
+        <span>SHAKSHUKA<br />SUNDAY</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#plan">The plan</a>
+        <a href="#recipe">Recipe</a>
+        <a href="#playlist">Playlist</a>
+        <a href="#gallery">Gallery</a>
+      </nav>
+      <a class="button button-small" href="#rsvp">RSVP <span>→</span></a>
+    </header>
+
+    <main id="top">
+      <section class="hero wrap">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> Sunday, 19 July 2026 · table for 9</p>
+          <h1>Come hungry.<br /><em>Leave sunny.</em></h1>
+          <p class="hero-intro">A gloriously saucy Sunday of soft eggs, loud music and friends around one slightly overworked table.</p>
+          <div class="hero-actions">
+            <a class="button" href="#rsvp">Save your seat <span>→</span></a>
+            <a class="text-link" href="#plan">See the day <span>↓</span></a>
+          </div>
+          <div class="date-stamp" aria-label="Sunday 19 July at 11:30">
+            <strong>SUN</strong><strong>19</strong><span>JUL<br />11:30</span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="An illustrated pan of shakshuka">
+          <div class="steam steam-one">∿</div><div class="steam steam-two">∿</div>
+          <div class="pan-handle"></div>
+          <div class="pan">
+            <i class="egg egg-one"></i><i class="egg egg-two"></i><i class="egg egg-three"></i>
+            <i class="tomato tomato-one"></i><i class="tomato tomato-two"></i><i class="tomato tomato-three"></i>
+            <b class="herb herb-one">✦</b><b class="herb herb-two">✦</b><b class="herb herb-three">✦</b>
+          </div>
+          <p class="art-note">ONE PAN*<br /><small>*probably two, actually</small></p>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Event highlights">
+        <div>EARLY BIRDS AT 11:00 <span>✿</span> OFFICIAL HUGS AT 11:30 <span>✿</span> EGGS, BREAD & BIG FEELINGS <span>✿</span> KITCHEN DISCO ENCOURAGED <span>✿</span></div>
+      </section>
+
+      <section class="dashboard wrap" id="plan">
+        <div class="section-heading">
+          <div><p class="kicker">The day, at a glance</p><h2>A very loose plan.</h2></div>
+          <p>No military precision here—just enough structure to get the eggs hot and everyone fed.</p>
+        </div>
+
+        <div class="now-board" id="nowBoard">
+          <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" type="button">Preview event day</button></div>
+          <div class="now-grid">
+            <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">Hydrate. Locate your tote bag.</span></div>
+            <div class="next-up"><p>Up next</p><h3 id="happeningNext">Early Bird Chopping Club</h3><span id="nextTime">11:00</span></div>
+          </div>
+        </div>
+
+        <ol class="schedule">
+          <li><time>11:00</time><div><h3>Early Bird Chopping Club <span class="tag">OPTIONAL</span></h3><p>Coffee on, onions out. Come early if wielding a wooden spoon brings you peace.</p></div><span class="doodle">☕</span></li>
+          <li><time>11:30</time><div><h3>Official hello</h3><p>Coats off, drinks poured, dramatic reunion hugs distributed fairly.</p></div><span class="doodle">✦</span></li>
+          <li><time>11:45</time><div><h3>Mise en place circus</h3><p>Chop, toast, taste, debate whether there is ever too much cumin.</p></div><span class="doodle">🔪</span></li>
+          <li><time>12:35</time><div><h3>The shakshuka lands</h3><p>Eggs wobbling, bread tearing, phones briefly ignored.</p></div><span class="doodle">🍳</span></li>
+          <li><time>13:30</time><div><h3>Seconds & kitchen disco</h3><p>Tea, tiny desserts, shared songs and a wholly avoidable group photo.</p></div><span class="doodle">♫</span></li>
+          <li><time>15:00</time><div><h3>The soft goodbye</h3><p>Leftovers draft. Nobody is forced out, but the host may become horizontal.</p></div><span class="doodle">↝</span></li>
+        </ol>
+      </section>
+
+      <section class="rsvp-section" id="rsvp">
+        <div class="wrap rsvp-grid">
+          <div class="rsvp-copy">
+            <p class="kicker light">Your place at the table</p>
+            <h2>Are you in?</h2>
+            <p>Claim a seat, share any food needs, and tell the table what you might bring so we don’t end up with nine identical bags of ice.</p>
+            <div class="seat-counter">
+              <div class="seat-number"><strong id="confirmedCount">0</strong><span>/ 9</span></div>
+              <div><b>seats claimed</b><p id="seatMessage">Nine plates are waiting patiently.</p></div>
+            </div>
+            <div class="guest-chips" id="guestChips" aria-live="polite"></div>
+          </div>
+
+          <form class="card-form" id="rsvpForm">
+            <div class="form-heading"><span>01</span><div><h3>Roll call</h3><p>Contact details stay private.</p></div></div>
+            <div class="field"><label for="name">Your name *</label><input id="name" name="name" required autocomplete="name" placeholder="The name we shout from the kitchen" /></div>
+            <fieldset class="attendance"><legend>Can you make it? *</legend><label><input type="radio" name="attendance" value="yes" required checked /><span>Yes! 🍳</span></label><label><input type="radio" name="attendance" value="maybe" /><span>Maybe-ish</span></label><label><input type="radio" name="attendance" value="no" /><span>Sadly no</span></label></fieldset>
+            <div class="two-fields">
+              <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
+              <div class="field"><label for="contactApp">Best way to reach you</label><select id="contactApp" name="contactApp"><option value="">No preference</option><option>WhatsApp</option><option>Signal</option><option>Telegram</option><option>SMS</option><option>Email</option></select></div>
+            </div>
+            <div class="two-fields"><div class="field"><label for="email">Email <small>optional</small></label><input id="email" name="email" type="email" autocomplete="email" placeholder="hello@example.com" /></div><div class="field"><label for="phone">Phone <small>optional</small></label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+44 …" /></div></div>
+            <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, no coriander, severe raisin distrust…" /></div>
+            <div class="field"><label for="contribution">I could bring…</label><input id="contribution" name="contribution" placeholder="Sourdough, orange juice, flowers…" /><small class="field-note" id="duplicateNote">See what’s already coming below.</small></div>
+            <div class="field"><label for="comment">Anything else?</label><textarea id="comment" name="comment" rows="3" placeholder="Timing, questions, niche egg opinions…"></textarea></div>
+            <button class="button button-dark" type="submit">Send my RSVP <span>→</span></button>
+            <p class="form-status" id="rsvpStatus" role="status"></p>
+          </form>
+        </div>
+        <div class="wrap contribution-board">
+          <p class="kicker light">The communal haul</p>
+          <div id="contributionList" class="contribution-list"><p class="empty-state">Nothing claimed yet. The table is your oyster. (Please don’t bring oysters.)</p></div>
+        </div>
+      </section>
+
+      <section class="recipe-section wrap" id="recipe">
+        <div class="recipe-heading">
+          <div><p class="kicker">The main event</p><h2>Shakshuka for <span id="recipeTitleCount">9</span>.</h2><p>A deeply tomatoey, gently spicy pan with soft eggs and enough bread for enthusiastic mopping.</p></div>
+          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">9</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div><small id="recipeSyncNote">Planned table size</small></div>
+        </div>
+
+        <div class="recipe-layout">
+          <div class="ingredients-card">
+            <div class="card-label">SHOPPING LIST</div>
+            <ul id="ingredientsList"></ul>
+            <p class="recipe-note">For more than 6 people, use two wide pans. Crowded eggs are grumpy eggs.</p>
+          </div>
+          <div class="method">
+            <div class="method-step"><span>1</span><div><h3>Build the base</h3><p>Soften onions and peppers in olive oil for 10 minutes. Add garlic, cumin, paprika and chilli; let everything get fragrant.</p></div></div>
+            <div class="method-step"><span>2</span><div><h3>Make it saucy</h3><p>Add tomatoes, season generously and simmer 15–20 minutes until thick enough to hold a little egg crater.</p></div></div>
+            <div class="method-step"><span>3</span><div><h3>Drop the eggs</h3><p>Make wells, crack in the eggs, cover and cook 6–9 minutes. Stop while the yolks still have a promising wobble.</p></div></div>
+            <div class="method-step"><span>4</span><div><h3>Finish with flourish</h3><p>Scatter feta, herbs and black pepper. Put the whole glorious pan on the table with warm bread.</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="playlist-section" id="playlist">
+        <div class="wrap playlist-grid">
+          <div>
+            <p class="kicker">Pass the aux</p><h2>One table.<br />Nine DJs.</h2>
+            <p>Add one song that tastes like Sunday morning. We’ll build the queue together; no apologies required.</p>
+            <form class="song-form" id="songForm">
+              <div class="field"><label for="songTitle">Song *</label><input id="songTitle" name="title" required placeholder="This Must Be the Place" /></div>
+              <div class="two-fields"><div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Talking Heads" /></div><div class="field"><label for="addedBy">Added by</label><input id="addedBy" name="addedBy" placeholder="Your name" /></div></div>
+              <div class="field"><label for="songUrl">Spotify / YouTube link <small>optional</small></label><input id="songUrl" name="url" type="url" placeholder="https://…" /></div>
+              <button class="button" type="submit">Add to the queue <span>♫</span></button>
+              <p class="form-status" id="songStatus" role="status"></p>
+            </form>
+          </div>
+          <div class="record-sleeve">
+            <div class="record"><div><span>SHAKSHUKA</span><strong>SIDE A</strong><small>serve warm</small></div></div>
+            <div class="queue-card"><div class="queue-title"><span>THE QUEUE</span><b id="songCount">0 tracks</b></div><ol id="songList"><li class="empty-state">The dance floor is silent. Be brave.</li></ol></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="gallery-section wrap" id="gallery">
+        <div class="section-heading">
+          <div><p class="kicker">Proof it happened</p><h2>The sunny roll.</h2></div>
+          <p>Upload prep disasters, perfect yolks, good faces and the moment somebody starts dancing with a tea towel.</p>
+        </div>
+        <form class="upload-form" id="photoForm">
+          <label class="drop-zone" for="photoInput"><input id="photoInput" name="image" type="file" accept="image/*" required /><span class="upload-icon">↥</span><strong>Drop a photo into the pan</strong><small>or tap to choose · max 8 MB</small><img id="photoPreview" alt="Selected photo preview" /></label>
+          <div class="upload-fields"><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Your name" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
+        </form>
+        <div class="gallery-grid" id="galleryGrid"><div class="gallery-empty"><span>☀</span><p>The gallery opens whenever the first camera does.</p></div></div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap footer-inner"><div><strong>See you<br />round the pan.</strong><span>☻</span></div><p>Sunday, 19 July 2026<br />Early birds 11:00 · everyone 11:30</p><a href="#top">Back to top ↑</a></div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

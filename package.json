@@ -1,0 +1,11 @@
+{
+  "name": "shakshuka-brunch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/server.ts",
+    "start": "bun src/server.ts",
+    "check": "bun build src/server.ts --target bun --outdir /tmp/shakshuka-server-check && bun build public/app.js --target browser --outdir /tmp/shakshuka-browser-check"
+  }
+}
