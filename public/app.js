@@ -371,7 +371,13 @@ function updateLiveBoard() {
   let current;
   let next;
   if (now < first) {
-    current = { title: "Counting down to Sunday", aside: "We have sooo much time till Sunday!" };
+    const lessThanElevenHoursUntilStart = first.getTime() - now.getTime() < 11 * 60 * 60 * 1000;
+    current = {
+      title: "Counting down to Sunday",
+      aside: lessThanElevenHoursUntilStart
+        ? "We have sooo much time till 11am!"
+        : "We have sooo much time till Sunday!",
+    };
     next = schedule[0];
   } else if (now > new Date(last.getTime() + 2 * 60 * 60 * 1000)) {
     current = { title: "The pans are resting", aside: "Thanks for bringing your whole lovely self." };
