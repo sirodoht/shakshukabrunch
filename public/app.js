@@ -1,5 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
-const defaultServings = 8;
+const defaultServings = 4;
 const photoOwnerStorageKey = "shakshuka-photo-owners";
 const rsvpOwnerStorageKey = "shakshuka-rsvp-owners";
 const adminStorageKey = "shakshuka-admin-mode";
@@ -104,18 +104,17 @@ function renderState({ syncRecipe = true } = {}) {
   const manifestRsvps = adminMode ? state.rsvps : state.rsvps.filter((rsvp) => rsvp.attendance !== "no" || rsvpOwnerTokens[rsvp.id]);
   $("#guestList").innerHTML = manifestRsvps.length ? manifestRsvps.map((rsvp) => {
     const details = [
-      `<div><dt>Party size</dt><dd>${rsvp.partySize}</dd></div>`,
+      Number(rsvp.partySize) > 1 ? `<div><dt>Party size</dt><dd>${rsvp.partySize}</dd></div>` : "",
       rsvp.dietary ? `<div><dt>Food notes</dt><dd>${escapeHtml(rsvp.dietary)}</dd></div>` : "",
       rsvp.contribution ? `<div><dt>Bringing</dt><dd>${escapeHtml(rsvp.contribution)}</dd></div>` : "",
     ].filter(Boolean).join("");
     const attendanceLabel = rsvp.attendance === "yes" ? "Coming" : rsvp.attendance === "maybe" ? "Maybe-ish" : "Not coming";
     const canDelete = adminMode || rsvpOwnerTokens[rsvp.id];
-    return `<article class="guest-card"><header><h4>${escapeHtml(rsvp.name)}</h4><div class="guest-card-actions"><span class="attendance-badge ${rsvp.attendance}">${attendanceLabel}</span>${canDelete ? `<button class="guest-delete" type="button" data-rsvp-id="${escapeHtml(rsvp.id)}" aria-label="Delete ${escapeHtml(rsvp.name)} from the guest list">×</button>` : ""}</div></header><dl>${details}</dl></article>`;
+    return `<article class="guest-card${details ? "" : " guest-card-name-only"}"><header><h4>${escapeHtml(rsvp.name)}</h4><div class="guest-card-actions"><span class="attendance-badge ${rsvp.attendance}">${attendanceLabel}</span>${canDelete ? `<button class="guest-delete" type="button" data-rsvp-id="${escapeHtml(rsvp.id)}" aria-label="Delete ${escapeHtml(rsvp.name)} from the guest list">×</button>` : ""}</div></header>${details ? `<dl>${details}</dl>` : ""}</article>`;
   }).join("") : `<p class="empty-state">Nobody has materialised yet. Be the first brunch character.</p>`;
 
-  if (syncRecipe && confirmed > 0 && !recipeManuallyChanged) {
-    recipeServings = confirmed;
-    $("#recipeSyncNote").textContent = "Synced to yes RSVPs";
+  if (syncRecipe && !recipeManuallyChanged) {
+    recipeServings = Math.max(defaultServings, confirmed);
     renderRecipe();
   }
 
@@ -185,8 +184,8 @@ function startTickerMoodSwings() {
   window.setTimeout(chooseNewSpeed, 1_000);
 }
 
-$("#minusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.max(1, recipeServings - 1); $("#recipeSyncNote").textContent = "Adjusted by the chef"; renderRecipe(); });
-$("#plusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.min(30, recipeServings + 1); $("#recipeSyncNote").textContent = "Adjusted by the chef"; renderRecipe(); });
+$("#minusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.max(1, recipeServings - 1); renderRecipe(); });
+$("#plusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.min(30, recipeServings + 1); renderRecipe(); });
 
 $("#contribution").addEventListener("input", (event) => {
   const value = event.target.value.trim().toLowerCase();

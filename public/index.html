@@ -116,7 +116,7 @@
             <fieldset class="attendance"><legend>Can you make it? *</legend><label><input type="radio" name="attendance" value="yes" required checked /><span>Yes! 🍳</span></label><label><input type="radio" name="attendance" value="maybe" /><span>Maybe-ish</span></label><label><input type="radio" name="attendance" value="no" /><span>Sadly no</span></label></fieldset>
             <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
             <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, you hate mushrooms, anything" /></div>
-            <div class="field"><label for="contribution">I will bring...</label><input id="contribution" name="contribution" placeholder="Sourdough, orange juice, flowers…" /><small class="field-note" id="duplicateNote"></small></div>
+            <div class="field"><label for="contribution">I will bring... <small>(optional)</small></label><small class="field-note">You don’t need to bring anything, but if you do, let everybody know so there is no duplication (unless it’s a surprise!)</small><input id="contribution" name="contribution" placeholder="flowers, orange juice, air from my lungs..." /><small class="field-note" id="duplicateNote"></small></div>
             <button class="button button-dark" type="submit">Send my RSVP <span>→</span></button>
             <p class="form-status" id="rsvpStatus" role="status"></p>
           </form>
@@ -133,7 +133,7 @@
       <section class="recipe-section wrap" id="recipe">
         <div class="recipe-heading">
           <div><p class="kicker">The main event</p><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
-          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">8</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div><small id="recipeSyncNote">Planned table size</small></div>
+          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">4</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div></div>
         </div>
 
         <div class="recipe-layout">
