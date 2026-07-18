@@ -1,6 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
 const defaultServings = 8;
-const seatCapacity = 128;
 const photoOwnerStorageKey = "shakshuka-photo-owners";
 const rsvpOwnerStorageKey = "shakshuka-rsvp-owners";
 const adminStorageKey = "shakshuka-admin-mode";
@@ -100,7 +99,7 @@ function escapeHtml(value = "") {
 function renderState({ syncRecipe = true } = {}) {
   const confirmed = confirmedGuests();
   $("#confirmedCount").textContent = confirmed;
-  $("#seatMessage").textContent = confirmed === 0 ? "Each plate has 7 lines, either black or white." : confirmed < seatCapacity ? `${seatCapacity - confirmed} ${seatCapacity - confirmed === 1 ? "seat" : "seats"} still doing absolutely nothing.` : confirmed === seatCapacity ? "A perfectly full pan. Magnificent." : `${confirmed - seatCapacity} over plan. We’ll get a bigger pan.`;
+  $("#seatMessage").textContent = "Each plate has 7 lines, either black or white.";
 
   const manifestRsvps = adminMode ? state.rsvps : state.rsvps.filter((rsvp) => rsvp.attendance !== "no" || rsvpOwnerTokens[rsvp.id]);
   $("#guestList").innerHTML = manifestRsvps.length ? manifestRsvps.map((rsvp) => {
