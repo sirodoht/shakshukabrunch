@@ -1,0 +1,20 @@
+[Unit]
+Description=Shakshuka Brunch web app
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shakshuka
+Group=shakshuka
+WorkingDirectory=/opt/shakshuka-brunch
+Environment=PORT=3000
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env bun run start
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
