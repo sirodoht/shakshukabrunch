@@ -2,12 +2,14 @@ const $ = (selector) => document.querySelector(selector);
 const defaultServings = 4;
 const photoOwnerStorageKey = "shakshuka-photo-owners";
 const rsvpOwnerStorageKey = "shakshuka-rsvp-owners";
+const songOwnerStorageKey = "shakshuka-song-owners";
 const adminStorageKey = "shakshuka-admin-mode";
 let state = { rsvps: [], songs: [], photos: [] };
 let recipeServings = defaultServings;
 let recipeManuallyChanged = false;
 let photoOwnerTokens = loadPhotoOwnerTokens();
 let rsvpOwnerTokens = loadRsvpOwnerTokens();
+let songOwnerTokens = loadSongOwnerTokens();
 let adminMode = loadAdminMode();
 
 function loadAdminMode() {
@@ -46,6 +48,22 @@ function loadRsvpOwnerTokens() {
 function saveRsvpOwnerTokens() {
   try {
     localStorage.setItem(rsvpOwnerStorageKey, JSON.stringify(rsvpOwnerTokens));
+  } catch {
+    // The in-memory key still works until this tab closes.
+  }
+}
+
+function loadSongOwnerTokens() {
+  try {
+    return JSON.parse(localStorage.getItem(songOwnerStorageKey) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveSongOwnerTokens() {
+  try {
+    localStorage.setItem(songOwnerStorageKey, JSON.stringify(songOwnerTokens));
   } catch {
     // The in-memory key still works until this tab closes.
   }
@@ -119,7 +137,10 @@ function renderState({ syncRecipe = true } = {}) {
   }
 
   $("#songCount").textContent = `${state.songs.length} ${state.songs.length === 1 ? "track" : "tracks"}`;
-  $("#songList").innerHTML = state.songs.length ? state.songs.map((song) => `<li><strong>${song.url ? `<a href="${escapeHtml(song.url)}" target="_blank" rel="noreferrer">${escapeHtml(song.title)} ↗</a>` : escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist || "Artist unknown")} · added by ${escapeHtml(song.addedBy)}</span></li>`).join("") : `<li class="empty-state">Currently silence.</li>`;
+  $("#songList").innerHTML = state.songs.length ? state.songs.map((song) => {
+    const canDelete = adminMode || songOwnerTokens[song.id];
+    return `<li><div class="song-row"><div class="song-details"><strong>${song.url ? `<a href="${escapeHtml(song.url)}" target="_blank" rel="noreferrer">${escapeHtml(song.title)} ↗</a>` : escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist || "Artist unknown")} · added by ${escapeHtml(song.addedBy)}</span></div>${canDelete ? `<button class="song-delete" type="button" data-song-id="${escapeHtml(song.id)}" aria-label="Delete ${escapeHtml(song.title)} from the queue">×</button>` : ""}</div></li>`;
+  }).join("") : `<li class="empty-state">Currently silence.</li>`;
 
   $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
 }
@@ -227,13 +248,44 @@ $("#songForm").addEventListener("submit", async (event) => {
   button.disabled = true;
   setStatus($("#songStatus"), "Dropping the needle…");
   try {
-    state = await api("/api/songs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formToObject(form)) });
+    const songData = formToObject(form);
+    const ownerToken = crypto.randomUUID?.() || Array.from(crypto.getRandomValues(new Uint8Array(24)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    songData.ownerToken = ownerToken;
+    state = await api("/api/songs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(songData) });
+    if (state.submittedSongId) {
+      songOwnerTokens[state.submittedSongId] = ownerToken;
+      saveSongOwnerTokens();
+    }
     renderState({ syncRecipe: false });
     form.reset();
     setStatus($("#songStatus"), "Added. The kitchen just got 14% groovier.");
     showToast("Song added to Side A ♫");
   } catch (error) { setStatus($("#songStatus"), error.message, true); }
   finally { button.disabled = false; }
+});
+
+$("#songList").addEventListener("click", async (event) => {
+  const button = event.target.closest(".song-delete");
+  if (!button) return;
+  const songId = button.dataset.songId;
+  const ownerToken = songOwnerTokens[songId];
+  if ((!adminMode && !ownerToken) || !window.confirm("Remove this track from the queue?")) return;
+
+  button.disabled = true;
+  try {
+    state = await api(`/api/songs/${songId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", ...(adminMode ? { "X-Brunch-Admin": "local-storage" } : {}) },
+      body: JSON.stringify({ ownerToken }),
+    });
+    delete songOwnerTokens[songId];
+    saveSongOwnerTokens();
+    renderState({ syncRecipe: false });
+    showToast("Track removed from the queue");
+  } catch (error) {
+    button.disabled = false;
+    showToast(error.message);
+  }
 });
 
 $("#photoInput").addEventListener("change", (event) => {

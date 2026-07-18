@@ -23,6 +23,7 @@ type Song = {
   url: string;
   addedBy: string;
   createdAt: string;
+  ownerTokenHash?: string;
 };
 
 type Photo = {
@@ -63,7 +64,7 @@ function saveState(state: AppState) {
 function publicState(state: AppState) {
   return {
     rsvps: state.rsvps.map(({ email: _email, phone: _phone, contactApp: _contactApp, comment: _comment, ownerTokenHash: _ownerTokenHash, ...rsvp }) => rsvp),
-    songs: state.songs,
+    songs: state.songs.map(({ ownerTokenHash: _ownerTokenHash, ...song }) => song),
     photos: state.photos.map(({ ownerTokenHash: _ownerTokenHash, ...photo }) => photo),
   };
 }
@@ -156,20 +157,42 @@ const server = Bun.serve({
       if (url.pathname === "/api/songs" && request.method === "POST") {
         const body = await request.json() as Record<string, unknown>;
         const title = clean(body.title, 120);
+        const ownerToken = clean(body.ownerToken, 200);
         if (!title) return json({ error: "Give us a song title." }, 400);
+        if (ownerToken.length < 20) return json({ error: "Could not create a deletion key for this track. Please try again." }, 400);
         const urlValue = clean(body.url, 500);
         if (urlValue && !/^https?:\/\//i.test(urlValue)) return json({ error: "The song link needs to start with http:// or https://" }, 400);
         const state = await readState();
-        state.songs.unshift({
+        const song: Song = {
           id: crypto.randomUUID(),
           title,
           artist: clean(body.artist, 120),
           url: urlValue,
           addedBy: clean(body.addedBy, 80) || "A mysterious DJ",
           createdAt: new Date().toISOString(),
-        });
+          ownerTokenHash: await hashOwnerToken(ownerToken),
+        };
+        state.songs.unshift(song);
         await saveState(state);
-        return json(publicState(state), 201);
+        return json({ ...publicState(state), submittedSongId: song.id }, 201);
+      }
+
+      const songDeleteMatch = url.pathname.match(/^\/api\/songs\/([a-f0-9-]+)$/i);
+      if (songDeleteMatch && request.method === "DELETE") {
+        const isAdmin = request.headers.get("X-Brunch-Admin") === "local-storage";
+        let body: Record<string, unknown> = {};
+        try { body = await request.json() as Record<string, unknown>; } catch {}
+        const ownerToken = clean(body.ownerToken, 200);
+        const state = await readState();
+        const songIndex = state.songs.findIndex((song) => song.id === songDeleteMatch[1]);
+        if (songIndex === -1) return json({ error: "That track is no longer in the queue." }, 404);
+        const song = state.songs[songIndex];
+        if (!isAdmin && (!song.ownerTokenHash || !ownerToken || await hashOwnerToken(ownerToken) !== song.ownerTokenHash)) {
+          return json({ error: "Only the browser that added this track can remove it." }, 403);
+        }
+        state.songs.splice(songIndex, 1);
+        await saveState(state);
+        return json(publicState(state));
       }
 
       if (url.pathname === "/api/photos" && request.method === "POST") {
