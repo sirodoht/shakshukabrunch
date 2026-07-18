@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f04b2f" />
     <meta name="description" content="Shakshuka Sunday — a nine-person brunch on 19 July 2026." />
     <title>Shakshuka Sunday · 19 July</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
@@ -15,11 +16,11 @@
     <div class="paper-noise" aria-hidden="true"></div>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Shakshuka Sunday home">
-        <span class="brand-sun">☀</span>
+        <img class="brand-sun" src="/favicon.svg" alt="" />
         <span>SHAKSHUKA<br />SUNDAY</span>
       </a>
       <nav aria-label="Main navigation">
-        <a href="#plan">The plan</a>
+        <a href="#plan">The Plan</a>
         <a href="#recipe">Recipe</a>
         <a href="#playlist">Playlist</a>
         <a href="#gallery">Gallery</a>
@@ -30,15 +31,18 @@
     <main id="top">
       <section class="hero wrap">
         <div class="hero-copy">
-          <p class="eyebrow"><span></span> Sunday, 19 July 2026 · table for 9</p>
-          <h1>Come hungry.<br /><em>Leave sunny.</em></h1>
-          <p class="hero-intro">A gloriously saucy Sunday of soft eggs, loud music and friends around one slightly overworked table.</p>
+          <p class="eyebrow"><span></span> Sunday, 19 July 2026</p>
+          <h1>Brunch.<br />Brunch.<br /><em>Brunch.</em></h1>
+          <p class="hero-intro">Come for brunch. We’re having shakshuka! Which is tomatoes + eggs. I’ve never cooked it before. Exciting!</p>
           <div class="hero-actions">
-            <a class="button" href="#rsvp">Save your seat <span>→</span></a>
-            <a class="text-link" href="#plan">See the day <span>↓</span></a>
+            <a class="button" href="#rsvp">Coming? <span>→</span></a>
           </div>
           <div class="date-stamp" aria-label="Sunday 19 July at 11:30">
             <strong>SUN</strong><strong>19</strong><span>JUL<br />11:30</span>
+          </div>
+          <div class="hero-countdown" role="timer" aria-live="off">
+            <span>UNTIL BRUNCH</span>
+            <strong id="heroCountdown">00d 00h 00m 00s</strong>
           </div>
         </div>
 
@@ -55,19 +59,22 @@
       </section>
 
       <section class="ticker" aria-label="Event highlights">
-        <div>EARLY BIRDS AT 11:00 <span>✿</span> OFFICIAL HUGS AT 11:30 <span>✿</span> EGGS, BREAD & BIG FEELINGS <span>✿</span> KITCHEN DISCO ENCOURAGED <span>✿</span></div>
+        <div>
+          <span class="ticker-copy">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO ENCOURAGED <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE WELCOME <b>✿</b> SOFT YOLKS, HARD LAUGHS <b>✿</b> PLEASE, NO NINE IDENTICAL BAGS OF ICE <b>✿</b></span>
+          <span class="ticker-copy" aria-hidden="true">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO ENCOURAGED <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE WELCOME <b>✿</b> SOFT YOLKS, HARD LAUGHS <b>✿</b> PLEASE, NO NINE IDENTICAL BAGS OF ICE <b>✿</b></span>
+        </div>
       </section>
 
       <section class="dashboard wrap" id="plan">
         <div class="section-heading">
           <div><p class="kicker">The day, at a glance</p><h2>A very loose plan.</h2></div>
-          <p>No military precision here—just enough structure to get the eggs hot and everyone fed.</p>
+          <p>I love plans. Not because I follow them. Just because I have something to ignore</p>
         </div>
 
         <div class="now-board" id="nowBoard">
           <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" type="button">Preview event day</button></div>
           <div class="now-grid">
-            <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">Hydrate. Locate your tote bag.</span></div>
+            <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">We have sooo much time till Sunday</span><div class="countdown-large" id="boardCountdown" role="timer" aria-live="off"></div></div>
             <div class="next-up"><p>Up next</p><h3 id="happeningNext">Early Bird Chopping Club</h3><span id="nextTime">11:00</span></div>
           </div>
         </div>
@@ -96,14 +103,10 @@
           </div>
 
           <form class="card-form" id="rsvpForm">
-            <div class="form-heading"><span>01</span><div><h3>Roll call</h3><p>Contact details stay private.</p></div></div>
+            <div class="form-heading"><span>01</span><div><h3>Roll call</h3><p>Tell us who’s coming.</p></div></div>
             <div class="field"><label for="name">Your name *</label><input id="name" name="name" required autocomplete="name" placeholder="The name we shout from the kitchen" /></div>
             <fieldset class="attendance"><legend>Can you make it? *</legend><label><input type="radio" name="attendance" value="yes" required checked /><span>Yes! 🍳</span></label><label><input type="radio" name="attendance" value="maybe" /><span>Maybe-ish</span></label><label><input type="radio" name="attendance" value="no" /><span>Sadly no</span></label></fieldset>
-            <div class="two-fields">
-              <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
-              <div class="field"><label for="contactApp">Best way to reach you</label><select id="contactApp" name="contactApp"><option value="">No preference</option><option>WhatsApp</option><option>Signal</option><option>Telegram</option><option>SMS</option><option>Email</option></select></div>
-            </div>
-            <div class="two-fields"><div class="field"><label for="email">Email <small>optional</small></label><input id="email" name="email" type="email" autocomplete="email" placeholder="hello@example.com" /></div><div class="field"><label for="phone">Phone <small>optional</small></label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+44 …" /></div></div>
+            <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
             <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, no coriander, severe raisin distrust…" /></div>
             <div class="field"><label for="contribution">I could bring…</label><input id="contribution" name="contribution" placeholder="Sourdough, orange juice, flowers…" /><small class="field-note" id="duplicateNote">See what’s already coming below.</small></div>
             <div class="field"><label for="comment">Anything else?</label><textarea id="comment" name="comment" rows="3" placeholder="Timing, questions, niche egg opinions…"></textarea></div>

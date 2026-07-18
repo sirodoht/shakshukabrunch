@@ -96,6 +96,35 @@ function showToast(message) {
   window.setTimeout(() => toast.classList.remove("show"), 3400);
 }
 
+function startTickerMoodSwings() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const ticker = $(".ticker div");
+  const animation = ticker?.getAnimations()[0];
+  if (!animation) return;
+
+  function chooseNewSpeed() {
+    const startingRate = animation.playbackRate;
+    const targetRate = .55 + Math.random() * 1.35;
+    const startedAt = performance.now();
+    const transitionTime = 900 + Math.random() * 1_300;
+
+    function glide(timestamp) {
+      const progress = Math.min(1, (timestamp - startedAt) / transitionTime);
+      const eased = progress * progress * (3 - 2 * progress);
+      const nextRate = startingRate + (targetRate - startingRate) * eased;
+      if (typeof animation.updatePlaybackRate === "function") animation.updatePlaybackRate(nextRate);
+      else animation.playbackRate = nextRate;
+
+      if (progress < 1) window.requestAnimationFrame(glide);
+      else window.setTimeout(chooseNewSpeed, 1_300 + Math.random() * 3_800);
+    }
+
+    window.requestAnimationFrame(glide);
+  }
+
+  window.setTimeout(chooseNewSpeed, 1_000);
+}
+
 $("#minusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.max(1, recipeServings - 1); $("#recipeSyncNote").textContent = "Adjusted by the chef"; renderRecipe(); });
 $("#plusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.min(30, recipeServings + 1); $("#recipeSyncNote").textContent = "Adjusted by the chef"; renderRecipe(); });
 
@@ -176,7 +205,33 @@ const schedule = [
   { at: "2026-07-19T13:30:00+01:00", title: "Seconds & kitchen disco", aside: "Tea towels may become costumes." },
   { at: "2026-07-19T15:00:00+01:00", title: "The soft goodbye", aside: "Leftovers draft and long doorstep chats." },
 ];
+const officialBrunchTime = new Date("2026-07-19T11:30:00+01:00");
 let previewIndex = null;
+
+function updateCountdown() {
+  const remaining = officialBrunchTime.getTime() - Date.now();
+  const heroCountdown = $("#heroCountdown");
+  const boardCountdown = $("#boardCountdown");
+
+  if (remaining <= 0) {
+    heroCountdown.textContent = "BRUNCH IS ON!";
+    boardCountdown.innerHTML = `<div class="countdown-unit"><strong>00</strong><small>Time to eat</small></div>`;
+    boardCountdown.style.gridTemplateColumns = "minmax(180px, 1fr)";
+    return;
+  }
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  const parts = [
+    { label: "Days", value: Math.floor(totalSeconds / 86400) },
+    { label: "Hours", value: Math.floor((totalSeconds % 86400) / 3600) },
+    { label: "Minutes", value: Math.floor((totalSeconds % 3600) / 60) },
+    { label: "Seconds", value: totalSeconds % 60 },
+  ];
+  const padded = parts.map((part) => String(part.value).padStart(2, "0"));
+  heroCountdown.textContent = `${padded[0]}d ${padded[1]}h ${padded[2]}m ${padded[3]}s`;
+  boardCountdown.style.removeProperty("grid-template-columns");
+  boardCountdown.innerHTML = parts.map((part, index) => `<div class="countdown-unit"><strong>${padded[index]}</strong><small>${part.label}</small></div>`).join("");
+}
 
 function updateLiveBoard() {
   const now = previewIndex === null ? new Date() : new Date(schedule[previewIndex].at);
@@ -185,7 +240,7 @@ function updateLiveBoard() {
   let current;
   let next;
   if (now < first) {
-    current = { title: "Counting down to Sunday", aside: "Hydrate. Locate your tote bag." };
+    current = { title: "Counting down to Sunday", aside: "We have sooo much time till Sunday" };
     next = schedule[0];
   } else if (now > new Date(last.getTime() + 2 * 60 * 60 * 1000)) {
     current = { title: "The pans are resting", aside: "Thanks for bringing your whole lovely self." };
@@ -211,7 +266,10 @@ $("#previewDay").addEventListener("click", (event) => {
 
 async function init() {
   renderRecipe();
+  startTickerMoodSwings();
+  updateCountdown();
   updateLiveBoard();
+  window.setInterval(updateCountdown, 1_000);
   window.setInterval(updateLiveBoard, 60_000);
   try {
     state = await api("/api/state");
