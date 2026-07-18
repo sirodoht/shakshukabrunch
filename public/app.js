@@ -1,8 +1,56 @@
 const $ = (selector) => document.querySelector(selector);
 const plannedGuests = 9;
+const seatCapacity = 128;
+const photoOwnerStorageKey = "shakshuka-photo-owners";
+const rsvpOwnerStorageKey = "shakshuka-rsvp-owners";
+const adminStorageKey = "shakshuka-admin-mode";
 let state = { rsvps: [], songs: [], photos: [] };
 let recipeServings = plannedGuests;
 let recipeManuallyChanged = false;
+let photoOwnerTokens = loadPhotoOwnerTokens();
+let rsvpOwnerTokens = loadRsvpOwnerTokens();
+let adminMode = loadAdminMode();
+
+function loadAdminMode() {
+  try {
+    if (["/admin", "/admin/"].includes(window.location.pathname)) localStorage.setItem(adminStorageKey, "true");
+    return localStorage.getItem(adminStorageKey) === "true";
+  } catch {
+    return ["/admin", "/admin/"].includes(window.location.pathname);
+  }
+}
+
+function loadPhotoOwnerTokens() {
+  try {
+    return JSON.parse(localStorage.getItem(photoOwnerStorageKey) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function savePhotoOwnerTokens() {
+  try {
+    localStorage.setItem(photoOwnerStorageKey, JSON.stringify(photoOwnerTokens));
+  } catch {
+    // The in-memory key still works until this tab closes.
+  }
+}
+
+function loadRsvpOwnerTokens() {
+  try {
+    return JSON.parse(localStorage.getItem(rsvpOwnerStorageKey) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveRsvpOwnerTokens() {
+  try {
+    localStorage.setItem(rsvpOwnerStorageKey, JSON.stringify(rsvpOwnerTokens));
+  } catch {
+    // The in-memory key still works until this tab closes.
+  }
+}
 
 const ingredients = [
   { name: "large eggs", per: 2, unit: "", round: "whole" },
@@ -33,7 +81,6 @@ function displayAmount(value) {
 
 function renderRecipe() {
   $("#servingCount").textContent = recipeServings;
-  $("#recipeTitleCount").textContent = recipeServings;
   $("#ingredientsList").innerHTML = ingredients.map((item) => {
     const amount = displayAmount(roundAmount(item.per * recipeServings, item.round));
     return `<li><strong>${amount}${item.unit ? ` ${item.unit}` : ""}</strong><span>${item.name}</span></li>`;
@@ -53,13 +100,23 @@ function escapeHtml(value = "") {
 function renderState({ syncRecipe = true } = {}) {
   const confirmed = confirmedGuests();
   $("#confirmedCount").textContent = confirmed;
-  $("#seatMessage").textContent = confirmed === 0 ? "Nine plates are waiting patiently." : confirmed < 9 ? `${9 - confirmed} ${9 - confirmed === 1 ? "seat" : "seats"} still doing absolutely nothing.` : confirmed === 9 ? "A perfectly full pan. Magnificent." : `${confirmed - 9} over plan. We’ll get a bigger pan.`;
+  $("#seatMessage").textContent = confirmed === 0 ? "Each plate has 7 lines, either black or white." : confirmed < seatCapacity ? `${seatCapacity - confirmed} ${seatCapacity - confirmed === 1 ? "seat" : "seats"} still doing absolutely nothing.` : confirmed === seatCapacity ? "A perfectly full pan. Magnificent." : `${confirmed - seatCapacity} over plan. We’ll get a bigger pan.`;
 
   const visibleRsvps = state.rsvps.filter((r) => r.attendance !== "no");
-  $("#guestChips").innerHTML = visibleRsvps.map((r) => `<span class="guest-chip ${r.attendance}">${escapeHtml(r.name)}${r.partySize > 1 ? ` +${r.partySize - 1}` : ""}${r.attendance === "maybe" ? " · maybe" : ""}</span>`).join("");
 
-  const contributions = state.rsvps.filter((r) => r.attendance !== "no" && r.contribution);
-  $("#contributionList").innerHTML = contributions.length ? contributions.map((r) => `<div class="contribution-item"><strong>${escapeHtml(r.contribution)}</strong><span>via ${escapeHtml(r.name)}</span></div>`).join("") : `<p class="empty-state">Nothing claimed yet. The table is your oyster. (Please don’t bring oysters.)</p>`;
+  const manifestRsvps = adminMode ? state.rsvps : state.rsvps.filter((rsvp) => rsvp.attendance !== "no" || rsvpOwnerTokens[rsvp.id]);
+  $("#guestList").innerHTML = manifestRsvps.length ? manifestRsvps.map((rsvp) => {
+    const details = [
+      `<div><dt>Party size</dt><dd>${rsvp.partySize}</dd></div>`,
+      rsvp.dietary ? `<div><dt>Food notes</dt><dd>${escapeHtml(rsvp.dietary)}</dd></div>` : "",
+      rsvp.contribution ? `<div><dt>Bringing</dt><dd>${escapeHtml(rsvp.contribution)}</dd></div>` : "",
+      rsvp.contactApp ? `<div><dt>Contact via</dt><dd>${escapeHtml(rsvp.contactApp)}</dd></div>` : "",
+      rsvp.comment ? `<div><dt>Extra intel</dt><dd>${escapeHtml(rsvp.comment)}</dd></div>` : "",
+    ].filter(Boolean).join("");
+    const attendanceLabel = rsvp.attendance === "yes" ? "Coming" : rsvp.attendance === "maybe" ? "Maybe-ish" : "Not coming";
+    const canDelete = adminMode || rsvpOwnerTokens[rsvp.id];
+    return `<article class="guest-card"><header><h4>${escapeHtml(rsvp.name)}</h4><div class="guest-card-actions"><span class="attendance-badge ${rsvp.attendance}">${attendanceLabel}</span>${canDelete ? `<button class="guest-delete" type="button" data-rsvp-id="${escapeHtml(rsvp.id)}" aria-label="Delete ${escapeHtml(rsvp.name)} from the guest list">×</button>` : ""}</div></header><dl>${details}</dl></article>`;
+  }).join("") : `<p class="empty-state">Nobody has materialised yet. Be the first brunch character.</p>`;
 
   if (syncRecipe && confirmed > 0 && !recipeManuallyChanged) {
     recipeServings = confirmed;
@@ -68,9 +125,9 @@ function renderState({ syncRecipe = true } = {}) {
   }
 
   $("#songCount").textContent = `${state.songs.length} ${state.songs.length === 1 ? "track" : "tracks"}`;
-  $("#songList").innerHTML = state.songs.length ? state.songs.map((song) => `<li><strong>${song.url ? `<a href="${escapeHtml(song.url)}" target="_blank" rel="noreferrer">${escapeHtml(song.title)} ↗</a>` : escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist || "Artist unknown")} · added by ${escapeHtml(song.addedBy)}</span></li>`).join("") : `<li class="empty-state">The dance floor is silent. Be brave.</li>`;
+  $("#songList").innerHTML = state.songs.length ? state.songs.map((song) => `<li><strong>${song.url ? `<a href="${escapeHtml(song.url)}" target="_blank" rel="noreferrer">${escapeHtml(song.title)} ↗</a>` : escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist || "Artist unknown")} · added by ${escapeHtml(song.addedBy)}</span></li>`).join("") : `<li class="empty-state">Currently silence.</li>`;
 
-  $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo) => `<article class="photo-card"><img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>The gallery opens whenever the first camera does.</p></div>`;
+  $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
 }
 
 async function api(path, options) {
@@ -101,12 +158,17 @@ function startTickerMoodSwings() {
   const ticker = $(".ticker div");
   const animation = ticker?.getAnimations()[0];
   if (!animation) return;
+  let nextSpeedIsFast = true;
 
   function chooseNewSpeed() {
     const startingRate = animation.playbackRate;
-    const targetRate = .55 + Math.random() * 1.35;
+    const isFastMode = nextSpeedIsFast;
+    const targetRate = isFastMode
+      ? 2.2 + Math.random() * 2.4
+      : .18 + Math.random() * .52;
+    nextSpeedIsFast = !nextSpeedIsFast;
     const startedAt = performance.now();
-    const transitionTime = 900 + Math.random() * 1_300;
+    const transitionTime = 180 + Math.random() * 520;
 
     function glide(timestamp) {
       const progress = Math.min(1, (timestamp - startedAt) / transitionTime);
@@ -116,7 +178,10 @@ function startTickerMoodSwings() {
       else animation.playbackRate = nextRate;
 
       if (progress < 1) window.requestAnimationFrame(glide);
-      else window.setTimeout(chooseNewSpeed, 1_300 + Math.random() * 3_800);
+      else {
+        const holdTime = 180 + Math.random() * 900;
+        window.setTimeout(chooseNewSpeed, holdTime * (isFastMode ? 4 : 1));
+      }
     }
 
     window.requestAnimationFrame(glide);
@@ -133,7 +198,7 @@ $("#contribution").addEventListener("input", (event) => {
   const match = value.length > 2 && state.rsvps.find((r) => r.contribution && (r.contribution.toLowerCase().includes(value) || value.includes(r.contribution.toLowerCase())));
   const note = $("#duplicateNote");
   note.classList.toggle("warning", Boolean(match));
-  note.textContent = match ? `${match.name} may already be bringing “${match.contribution}” — coordinate or diversify!` : "See what’s already coming below.";
+  note.textContent = match ? `${match.name} may already be bringing “${match.contribution}” — coordinate or diversify!` : "";
 });
 
 $("#rsvpForm").addEventListener("submit", async (event) => {
@@ -143,7 +208,14 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
   button.disabled = true;
   setStatus($("#rsvpStatus"), "Sending your tiny digital place card…");
   try {
-    state = await api("/api/rsvp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formToObject(form)) });
+    const rsvpData = formToObject(form);
+    const ownerToken = crypto.randomUUID?.() || Array.from(crypto.getRandomValues(new Uint8Array(24)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    rsvpData.ownerToken = ownerToken;
+    state = await api("/api/rsvp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rsvpData) });
+    if (state.submittedRsvpId) {
+      rsvpOwnerTokens[state.submittedRsvpId] = ownerToken;
+      saveRsvpOwnerTokens();
+    }
     recipeManuallyChanged = false;
     renderState();
     form.reset();
@@ -185,7 +257,14 @@ $("#photoForm").addEventListener("submit", async (event) => {
   button.disabled = true;
   setStatus($("#photoStatus"), "Developing in our imaginary darkroom…");
   try {
-    state = await api("/api/photos", { method: "POST", body: new FormData(form) });
+    const formData = new FormData(form);
+    const ownerToken = crypto.randomUUID?.() || Array.from(crypto.getRandomValues(new Uint8Array(24)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    formData.append("ownerToken", ownerToken);
+    state = await api("/api/photos", { method: "POST", body: formData });
+    if (state.uploadedPhotoId) {
+      photoOwnerTokens[state.uploadedPhotoId] = ownerToken;
+      savePhotoOwnerTokens();
+    }
     renderState({ syncRecipe: false });
     form.reset();
     $("#photoPreview").removeAttribute("src");
@@ -196,15 +275,73 @@ $("#photoForm").addEventListener("submit", async (event) => {
   finally { button.disabled = false; }
 });
 
-const schedule = [
-  { at: "2026-07-19T11:00:00+01:00", title: "Early Bird Chopping Club", aside: "Coffee, onions, low-stakes knife work." },
-  { at: "2026-07-19T11:30:00+01:00", title: "Official hello", aside: "Hugs are happening. Find a drink." },
-  { at: "2026-07-19T11:45:00+01:00", title: "Mise en place circus", aside: "Somebody please watch the garlic." },
-  { at: "2026-07-19T12:15:00+01:00", title: "Eggs are going in", aside: "This is not a drill. Protect the yolks." },
-  { at: "2026-07-19T12:35:00+01:00", title: "The shakshuka lands", aside: "Tear bread. Make happy noises." },
-  { at: "2026-07-19T13:30:00+01:00", title: "Seconds & kitchen disco", aside: "Tea towels may become costumes." },
-  { at: "2026-07-19T15:00:00+01:00", title: "The soft goodbye", aside: "Leftovers draft and long doorstep chats." },
-];
+$("#galleryGrid").addEventListener("click", async (event) => {
+  const button = event.target.closest(".photo-delete");
+  if (!button) return;
+  const photoId = button.dataset.photoId;
+  const ownerToken = photoOwnerTokens[photoId];
+  if ((!adminMode && !ownerToken) || !window.confirm("Remove this photo from the sunny roll?")) return;
+
+  button.disabled = true;
+  try {
+    state = await api(`/api/photos/${photoId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", ...(adminMode ? { "X-Brunch-Admin": "local-storage" } : {}) },
+      body: JSON.stringify({ ownerToken }),
+    });
+    delete photoOwnerTokens[photoId];
+    savePhotoOwnerTokens();
+    renderState({ syncRecipe: false });
+    showToast("Photo removed from the sunny roll");
+  } catch (error) {
+    button.disabled = false;
+    showToast(error.message);
+  }
+});
+
+$("#guestList").addEventListener("click", async (event) => {
+  const button = event.target.closest(".guest-delete");
+  if (!button) return;
+  const rsvpId = button.dataset.rsvpId;
+  const ownerToken = rsvpOwnerTokens[rsvpId];
+  if ((!adminMode && !ownerToken) || !window.confirm("Remove this RSVP and everything shared with it?")) return;
+  button.disabled = true;
+  try {
+    state = await api(`/api/rsvps/${rsvpId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", ...(adminMode ? { "X-Brunch-Admin": "local-storage" } : {}) },
+      body: JSON.stringify({ ownerToken }),
+    });
+    delete rsvpOwnerTokens[rsvpId];
+    saveRsvpOwnerTokens();
+    renderState();
+    showToast("Guest removed from the brunch manifest");
+  } catch (error) {
+    button.disabled = false;
+    showToast(error.message);
+  }
+});
+
+if (adminMode) {
+  document.body.classList.add("admin-mode");
+  $("#adminBar").hidden = false;
+}
+
+$("#leaveAdmin").addEventListener("click", () => {
+  try { localStorage.removeItem(adminStorageKey); } catch {}
+  window.location.href = "/";
+});
+
+const schedule = [...document.querySelectorAll(".schedule li")].map((item) => {
+  const time = item.querySelector("time");
+  const heading = item.querySelector("h3").cloneNode(true);
+  heading.querySelector(".tag")?.remove();
+  return {
+    at: time.dateTime,
+    title: heading.textContent.trim(),
+    aside: item.querySelector("p").textContent.trim(),
+  };
+});
 const officialBrunchTime = new Date("2026-07-19T11:30:00+01:00");
 let previewIndex = null;
 
@@ -240,7 +377,7 @@ function updateLiveBoard() {
   let current;
   let next;
   if (now < first) {
-    current = { title: "Counting down to Sunday", aside: "We have sooo much time till Sunday" };
+    current = { title: "Counting down to Sunday", aside: "We have sooo much time till Sunday!" };
     next = schedule[0];
   } else if (now > new Date(last.getTime() + 2 * 60 * 60 * 1000)) {
     current = { title: "The pans are resting", aside: "Thanks for bringing your whole lovely self." };

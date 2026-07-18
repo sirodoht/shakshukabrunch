@@ -17,16 +17,20 @@
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Shakshuka Sunday home">
         <img class="brand-sun" src="/favicon.svg" alt="" />
-        <span>SHAKSHUKA<br />SUNDAY</span>
+        <span>SHAKSHUKABRUNCH</span>
       </a>
       <nav aria-label="Main navigation">
         <a href="#plan">The Plan</a>
+        <a href="#guests">Who’s Coming</a>
         <a href="#recipe">Recipe</a>
         <a href="#playlist">Playlist</a>
         <a href="#gallery">Gallery</a>
       </nav>
       <a class="button button-small" href="#rsvp">RSVP <span>→</span></a>
     </header>
+    <aside class="admin-bar" id="adminBar" hidden>
+      <div class="wrap"><span><b>ADMIN MODE</b> · the brunch control room is open</span><button type="button" id="leaveAdmin">Exit admin mode</button></div>
+    </aside>
 
     <main id="top">
       <section class="hero wrap">
@@ -60,69 +64,69 @@
 
       <section class="ticker" aria-label="Event highlights">
         <div>
-          <span class="ticker-copy">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO ENCOURAGED <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE WELCOME <b>✿</b> SOFT YOLKS, HARD LAUGHS <b>✿</b> PLEASE, NO NINE IDENTICAL BAGS OF ICE <b>✿</b></span>
-          <span class="ticker-copy" aria-hidden="true">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO ENCOURAGED <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE WELCOME <b>✿</b> SOFT YOLKS, HARD LAUGHS <b>✿</b> PLEASE, NO NINE IDENTICAL BAGS OF ICE <b>✿</b></span>
+          <span class="ticker-copy">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE <b>✿</b> SOFT YOLKS <b>✿</b> LOTS OF ICE <b>✿</b></span>
+          <span class="ticker-copy" aria-hidden="true">EARLY BIRDS AT 11:00 <b>✿</b> OFFICIAL HUGS AT 11:30 <b>✿</b> EGGS, BREAD &amp; BIG FEELINGS <b>✿</b> KITCHEN DISCO <b>✿</b> BRING A SONG <b>✿</b> PHOTO EVIDENCE <b>✿</b> SOFT YOLKS <b>✿</b> LOTS OF ICE <b>✿</b></span>
         </div>
       </section>
 
       <section class="dashboard wrap" id="plan">
         <div class="section-heading">
-          <div><p class="kicker">The day, at a glance</p><h2>A very loose plan.</h2></div>
-          <p>I love plans. Not because I follow them. Just because I have something to ignore</p>
+          <div><p class="kicker">At a glance</p><h2>A loose plan.</h2></div>
+          <p>I love plans. Not because I follow them. Just because I have something to ignore.</p>
         </div>
 
         <div class="now-board" id="nowBoard">
           <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" type="button">Preview event day</button></div>
           <div class="now-grid">
-            <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">We have sooo much time till Sunday</span><div class="countdown-large" id="boardCountdown" role="timer" aria-live="off"></div></div>
-            <div class="next-up"><p>Up next</p><h3 id="happeningNext">Early Bird Chopping Club</h3><span id="nextTime">11:00</span></div>
+            <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">We have sooo much time till Sunday!</span><div class="countdown-large" id="boardCountdown" role="timer" aria-live="off"></div></div>
+            <div class="next-up"><p>Up next</p><h3 id="happeningNext">Chopping Club</h3><span id="nextTime">11:00</span></div>
           </div>
         </div>
 
         <ol class="schedule">
-          <li><time>11:00</time><div><h3>Early Bird Chopping Club <span class="tag">OPTIONAL</span></h3><p>Coffee on, onions out. Come early if wielding a wooden spoon brings you peace.</p></div><span class="doodle">☕</span></li>
-          <li><time>11:30</time><div><h3>Official hello</h3><p>Coats off, drinks poured, dramatic reunion hugs distributed fairly.</p></div><span class="doodle">✦</span></li>
-          <li><time>11:45</time><div><h3>Mise en place circus</h3><p>Chop, toast, taste, debate whether there is ever too much cumin.</p></div><span class="doodle">🔪</span></li>
-          <li><time>12:35</time><div><h3>The shakshuka lands</h3><p>Eggs wobbling, bread tearing, phones briefly ignored.</p></div><span class="doodle">🍳</span></li>
-          <li><time>13:30</time><div><h3>Seconds & kitchen disco</h3><p>Tea, tiny desserts, shared songs and a wholly avoidable group photo.</p></div><span class="doodle">♫</span></li>
-          <li><time>15:00</time><div><h3>The soft goodbye</h3><p>Leftovers draft. Nobody is forced out, but the host may become horizontal.</p></div><span class="doodle">↝</span></li>
+          <li><time datetime="2026-07-19T11:00:00+01:00">11:00</time><div><h3>Chopping Club <span class="tag">OPTIONAL</span></h3><p>Come early if cutting onions brings you peace.</p></div><span class="doodle">☕</span></li>
+          <li><time datetime="2026-07-19T11:30:00+01:00">11:30</time><div><h3>Official Hello</h3><p>Drinks first! Orange juice mostly, prosecco optional.</p></div><span class="doodle">✦</span></li>
+          <li><time datetime="2026-07-19T12:00:00+01:00">12:00</time><div><h3>Shakshuka</h3><p>Also sourdough. As sour as lime.</p></div><span class="doodle">🍳</span></li>
+          <li><time datetime="2026-07-19T12:30:00+01:00">12:30</time><div><h3>Supershakshuka</h3><p>Second portion, if there is any left.</p></div><span class="doodle">♫</span></li>
+          <li><time datetime="2026-07-19T13:30:00+01:00">13:30</time><div><h3>Desert</h3><p>Maybe cream, made of ice!</p></div><span class="doodle">↝</span></li>
         </ol>
       </section>
 
       <section class="rsvp-section" id="rsvp">
         <div class="wrap rsvp-grid">
           <div class="rsvp-copy">
-            <p class="kicker light">Your place at the table</p>
+            <p class="kicker light">RSVP Optional</p>
             <h2>Are you in?</h2>
-            <p>Claim a seat, share any food needs, and tell the table what you might bring so we don’t end up with nine identical bags of ice.</p>
+            <p>Forms are so much fun to fill, especially this one!</p>
             <div class="seat-counter">
-              <div class="seat-number"><strong id="confirmedCount">0</strong><span>/ 9</span></div>
-              <div><b>seats claimed</b><p id="seatMessage">Nine plates are waiting patiently.</p></div>
+              <div class="seat-number"><strong id="confirmedCount">0</strong><span>/ 128</span></div>
+              <div><b>seats claimed</b><p id="seatMessage">Each plate has 7 lines, either black or white.</p></div>
             </div>
-            <div class="guest-chips" id="guestChips" aria-live="polite"></div>
           </div>
 
           <form class="card-form" id="rsvpForm">
-            <div class="form-heading"><span>01</span><div><h3>Roll call</h3><p>Tell us who’s coming.</p></div></div>
-            <div class="field"><label for="name">Your name *</label><input id="name" name="name" required autocomplete="name" placeholder="The name we shout from the kitchen" /></div>
+            <div class="form-heading"><span>?</span><div><h3>RSVP form</h3><p>Fun form to fill in.</p></div></div>
+            <div class="field"><label for="name">Your name *</label><input id="name" name="name" required autocomplete="name" placeholder="You don't have to be you during brunch, play another person!" /></div>
             <fieldset class="attendance"><legend>Can you make it? *</legend><label><input type="radio" name="attendance" value="yes" required checked /><span>Yes! 🍳</span></label><label><input type="radio" name="attendance" value="maybe" /><span>Maybe-ish</span></label><label><input type="radio" name="attendance" value="no" /><span>Sadly no</span></label></fieldset>
             <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
-            <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, no coriander, severe raisin distrust…" /></div>
-            <div class="field"><label for="contribution">I could bring…</label><input id="contribution" name="contribution" placeholder="Sourdough, orange juice, flowers…" /><small class="field-note" id="duplicateNote">See what’s already coming below.</small></div>
-            <div class="field"><label for="comment">Anything else?</label><textarea id="comment" name="comment" rows="3" placeholder="Timing, questions, niche egg opinions…"></textarea></div>
+            <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, you hate mushrooms, anything" /></div>
+            <div class="field"><label for="contribution">I will bring...</label><input id="contribution" name="contribution" placeholder="Sourdough, orange juice, flowers…" /><small class="field-note" id="duplicateNote"></small></div>
             <button class="button button-dark" type="submit">Send my RSVP <span>→</span></button>
             <p class="form-status" id="rsvpStatus" role="status"></p>
           </form>
         </div>
-        <div class="wrap contribution-board">
-          <p class="kicker light">The communal haul</p>
-          <div id="contributionList" class="contribution-list"><p class="empty-state">Nothing claimed yet. The table is your oyster. (Please don’t bring oysters.)</p></div>
+        <div class="wrap guest-board" id="guests">
+          <div class="guest-board-heading">
+            <div><p class="kicker light">Brunch manifest</p><h3>Who’s coming?</h3></div>
+            <p>This is everyone.</p>
+          </div>
+          <div id="guestList" class="guest-list"><p class="empty-state">Nobody has materialised yet. Be the first brunch character.</p></div>
         </div>
       </section>
 
       <section class="recipe-section wrap" id="recipe">
         <div class="recipe-heading">
-          <div><p class="kicker">The main event</p><h2>Shakshuka for <span id="recipeTitleCount">9</span>.</h2><p>A deeply tomatoey, gently spicy pan with soft eggs and enough bread for enthusiastic mopping.</p></div>
+          <div><p class="kicker">The main event</p><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
           <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">9</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div><small id="recipeSyncNote">Planned table size</small></div>
         </div>
 
@@ -130,7 +134,6 @@
           <div class="ingredients-card">
             <div class="card-label">SHOPPING LIST</div>
             <ul id="ingredientsList"></ul>
-            <p class="recipe-note">For more than 6 people, use two wide pans. Crowded eggs are grumpy eggs.</p>
           </div>
           <div class="method">
             <div class="method-step"><span>1</span><div><h3>Build the base</h3><p>Soften onions and peppers in olive oil for 10 minutes. Add garlic, cumin, paprika and chilli; let everything get fragrant.</p></div></div>
@@ -144,11 +147,11 @@
       <section class="playlist-section" id="playlist">
         <div class="wrap playlist-grid">
           <div>
-            <p class="kicker">Pass the aux</p><h2>One table.<br />Nine DJs.</h2>
-            <p>Add one song that tastes like Sunday morning. We’ll build the queue together; no apologies required.</p>
+            <p class="kicker">Bring a vinyl</p><h2>Poly-DJ Brunch</h2>
+            <p>Add one song. Or twenty.</p>
             <form class="song-form" id="songForm">
-              <div class="field"><label for="songTitle">Song *</label><input id="songTitle" name="title" required placeholder="This Must Be the Place" /></div>
-              <div class="two-fields"><div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Talking Heads" /></div><div class="field"><label for="addedBy">Added by</label><input id="addedBy" name="addedBy" placeholder="Your name" /></div></div>
+              <div class="field"><label for="songTitle">Song *</label><input id="songTitle" name="title" required placeholder="If I Had $1,000,000" /></div>
+              <div class="two-fields"><div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Barenaked Ladies" /></div><div class="field"><label for="addedBy">Added by</label><input id="addedBy" name="addedBy" placeholder="Odysseus" /></div></div>
               <div class="field"><label for="songUrl">Spotify / YouTube link <small>optional</small></label><input id="songUrl" name="url" type="url" placeholder="https://…" /></div>
               <button class="button" type="submit">Add to the queue <span>♫</span></button>
               <p class="form-status" id="songStatus" role="status"></p>
@@ -156,26 +159,34 @@
           </div>
           <div class="record-sleeve">
             <div class="record"><div><span>SHAKSHUKA</span><strong>SIDE A</strong><small>serve warm</small></div></div>
-            <div class="queue-card"><div class="queue-title"><span>THE QUEUE</span><b id="songCount">0 tracks</b></div><ol id="songList"><li class="empty-state">The dance floor is silent. Be brave.</li></ol></div>
+            <div class="queue-card"><div class="queue-title"><span>THE QUEUE</span><b id="songCount">0 tracks</b></div><ol id="songList"><li class="empty-state">Currently silence.</li></ol></div>
           </div>
         </div>
       </section>
 
       <section class="gallery-section wrap" id="gallery">
         <div class="section-heading">
-          <div><p class="kicker">Proof it happened</p><h2>The sunny roll.</h2></div>
-          <p>Upload prep disasters, perfect yolks, good faces and the moment somebody starts dancing with a tea towel.</p>
+          <div><p class="kicker">Proof it happened</p><h2>Gallery</h2></div>
+          <p>This is our local instagram. Food pictures encouraged.</p>
         </div>
         <form class="upload-form" id="photoForm">
-          <label class="drop-zone" for="photoInput"><input id="photoInput" name="image" type="file" accept="image/*" required /><span class="upload-icon">↥</span><strong>Drop a photo into the pan</strong><small>or tap to choose · max 8 MB</small><img id="photoPreview" alt="Selected photo preview" /></label>
-          <div class="upload-fields"><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Your name" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
+          <label class="drop-zone" for="photoInput"><input id="photoInput" name="image" type="file" accept="image/*" required /><span class="upload-icon">↥</span><strong>Drop a photo</strong><small>or tap to choose · max 8 MB</small><img id="photoPreview" alt="Selected photo preview" /></label>
+          <div class="upload-fields"><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Penelope" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
         </form>
-        <div class="gallery-grid" id="galleryGrid"><div class="gallery-empty"><span>☀</span><p>The gallery opens whenever the first camera does.</p></div></div>
+        <div class="gallery-grid" id="galleryGrid"><div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div></div>
       </section>
     </main>
 
     <footer>
-      <div class="wrap footer-inner"><div><strong>See you<br />round the pan.</strong><span>☻</span></div><p>Sunday, 19 July 2026<br />Early birds 11:00 · everyone 11:30</p><a href="#top">Back to top ↑</a></div>
+      <div class="wrap footer-inner">
+        <div class="footer-spec"><span>shakshukabrunch.com</span><span>19.07.26</span></div>
+        <div class="footer-signoff">
+          <span class="footer-datum" aria-hidden="true">01</span>
+          <strong>See you soon.</strong>
+          <span class="footer-smile" aria-hidden="true">☻</span>
+        </div>
+        <div class="footer-scale" aria-hidden="true"><span>0</span><i></i><i></i><i></i><i></i><b>1:128</b></div>
+      </div>
     </footer>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

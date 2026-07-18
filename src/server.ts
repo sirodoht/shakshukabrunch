@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, unlink } from "node:fs/promises";
 import { extname, join } from "node:path";
 
 type RSVP = {
@@ -13,6 +13,7 @@ type RSVP = {
   contribution: string;
   comment: string;
   createdAt: string;
+  ownerTokenHash?: string;
 };
 
 type Song = {
@@ -30,6 +31,7 @@ type Photo = {
   caption: string;
   uploader: string;
   createdAt: string;
+  ownerTokenHash?: string;
 };
 
 type AppState = { rsvps: RSVP[]; songs: Song[]; photos: Photo[] };
@@ -61,9 +63,9 @@ function saveState(state: AppState) {
 function publicState(state: AppState) {
   return {
     event: { title: "Shakshuka Sunday", date: "2026-07-19", plannedGuests: 9 },
-    rsvps: state.rsvps.map(({ email: _email, phone: _phone, ...rsvp }) => rsvp),
+    rsvps: state.rsvps.map(({ email: _email, phone: _phone, ownerTokenHash: _ownerTokenHash, ...rsvp }) => rsvp),
     songs: state.songs,
-    photos: state.photos,
+    photos: state.photos.map(({ ownerTokenHash: _ownerTokenHash, ...photo }) => photo),
   };
 }
 
@@ -73,6 +75,11 @@ function json(data: unknown, status = 200) {
 
 function clean(value: unknown, max = 500) {
   return String(value ?? "").trim().slice(0, max);
+}
+
+async function hashOwnerToken(token: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 const mimeTypes: Record<string, string> = {
@@ -87,7 +94,7 @@ const mimeTypes: Record<string, string> = {
 };
 
 async function serveStatic(pathname: string) {
-  const route = pathname === "/" ? "/index.html" : pathname;
+  const route = pathname === "/" || pathname === "/admin" || pathname === "/admin/" ? "/index.html" : pathname;
   if (route.includes("..")) return new Response("Not found", { status: 404 });
   const file = Bun.file(join(PUBLIC_DIR, route));
   if (!(await file.exists())) return new Response("Not found", { status: 404 });
@@ -109,7 +116,9 @@ const server = Bun.serve({
         const body = await request.json() as Record<string, unknown>;
         const name = clean(body.name, 80);
         const attendance = clean(body.attendance, 10);
+        const ownerToken = clean(body.ownerToken, 200);
         if (!name || !["yes", "maybe", "no"].includes(attendance)) return json({ error: "Please add your name and RSVP choice." }, 400);
+        if (ownerToken.length < 20) return json({ error: "Could not create a deletion key for this RSVP. Please try again." }, 400);
 
         const state = await readState();
         const rsvp: RSVP = {
@@ -124,10 +133,29 @@ const server = Bun.serve({
           contribution: clean(body.contribution, 160),
           comment: clean(body.comment),
           createdAt: new Date().toISOString(),
+          ownerTokenHash: await hashOwnerToken(ownerToken),
         };
         state.rsvps.unshift(rsvp);
         await saveState(state);
-        return json(publicState(state), 201);
+        return json({ ...publicState(state), submittedRsvpId: rsvp.id }, 201);
+      }
+
+      const rsvpDeleteMatch = url.pathname.match(/^\/api\/rsvps\/([a-f0-9-]+)$/i);
+      if (rsvpDeleteMatch && request.method === "DELETE") {
+        const isAdmin = request.headers.get("X-Brunch-Admin") === "local-storage";
+        let body: Record<string, unknown> = {};
+        try { body = await request.json() as Record<string, unknown>; } catch {}
+        const ownerToken = clean(body.ownerToken, 200);
+        const state = await readState();
+        const rsvpIndex = state.rsvps.findIndex((rsvp) => rsvp.id === rsvpDeleteMatch[1]);
+        if (rsvpIndex === -1) return json({ error: "That guest is no longer on the list." }, 404);
+        const rsvp = state.rsvps[rsvpIndex];
+        if (!isAdmin && (!rsvp.ownerTokenHash || !ownerToken || await hashOwnerToken(ownerToken) !== rsvp.ownerTokenHash)) {
+          return json({ error: "Only the browser that submitted this RSVP can remove it." }, 403);
+        }
+        state.rsvps.splice(rsvpIndex, 1);
+        await saveState(state);
+        return json(publicState(state));
       }
 
       if (url.pathname === "/api/songs" && request.method === "POST") {
@@ -152,21 +180,45 @@ const server = Bun.serve({
       if (url.pathname === "/api/photos" && request.method === "POST") {
         const form = await request.formData();
         const image = form.get("image");
+        const ownerToken = clean(form.get("ownerToken"), 200);
         if (!(image instanceof File) || !image.type.startsWith("image/")) return json({ error: "Choose an image to upload." }, 400);
         if (image.size > 8 * 1024 * 1024) return json({ error: "That photo is over 8 MB. Try a smaller one." }, 400);
+        if (ownerToken.length < 20) return json({ error: "Could not create a deletion key for this photo. Please try again." }, 400);
         const extension = ({ "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif" } as Record<string, string>)[image.type] || ".jpg";
         const filename = `${crypto.randomUUID()}${extension}`;
         await Bun.write(join(UPLOAD_DIR, filename), image);
         const state = await readState();
-        state.photos.unshift({
+        const photo: Photo = {
           id: crypto.randomUUID(),
           url: `/uploads/${filename}`,
           caption: clean(form.get("caption"), 180),
           uploader: clean(form.get("uploader"), 80) || "Anonymous brunch artist",
           createdAt: new Date().toISOString(),
-        });
+          ownerTokenHash: await hashOwnerToken(ownerToken),
+        };
+        state.photos.unshift(photo);
         await saveState(state);
-        return json(publicState(state), 201);
+        return json({ ...publicState(state), uploadedPhotoId: photo.id }, 201);
+      }
+
+      const photoDeleteMatch = url.pathname.match(/^\/api\/photos\/([a-f0-9-]+)$/i);
+      if (photoDeleteMatch && request.method === "DELETE") {
+        const body = await request.json() as Record<string, unknown>;
+        const ownerToken = clean(body.ownerToken, 200);
+        const isAdmin = request.headers.get("X-Brunch-Admin") === "local-storage";
+        const state = await readState();
+        const photoIndex = state.photos.findIndex((photo) => photo.id === photoDeleteMatch[1]);
+        if (photoIndex === -1) return json({ error: "That photo is no longer in the gallery." }, 404);
+        const photo = state.photos[photoIndex];
+        if (!isAdmin && (!photo.ownerTokenHash || !ownerToken || await hashOwnerToken(ownerToken) !== photo.ownerTokenHash)) {
+          return json({ error: "Only the browser that uploaded this photo can remove it." }, 403);
+        }
+
+        state.photos.splice(photoIndex, 1);
+        await saveState(state);
+        const filename = photo.url.slice("/uploads/".length);
+        if (/^[a-f0-9-]+\.(jpg|png|webp|gif)$/i.test(filename)) await unlink(join(UPLOAD_DIR, filename)).catch(() => undefined);
+        return json(publicState(state));
       }
 
       if (url.pathname.startsWith("/uploads/") && request.method === "GET") {
