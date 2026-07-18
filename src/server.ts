@@ -6,12 +6,12 @@ type RSVP = {
   name: string;
   attendance: "yes" | "maybe" | "no";
   partySize: number;
-  email: string;
-  phone: string;
-  contactApp: string;
+  email?: string;
+  phone?: string;
+  contactApp?: string;
   dietary: string;
   contribution: string;
-  comment: string;
+  comment?: string;
   createdAt: string;
   ownerTokenHash?: string;
 };
@@ -62,8 +62,7 @@ function saveState(state: AppState) {
 
 function publicState(state: AppState) {
   return {
-    event: { title: "Shakshuka Sunday", date: "2026-07-19", plannedGuests: 9 },
-    rsvps: state.rsvps.map(({ email: _email, phone: _phone, ownerTokenHash: _ownerTokenHash, ...rsvp }) => rsvp),
+    rsvps: state.rsvps.map(({ email: _email, phone: _phone, contactApp: _contactApp, comment: _comment, ownerTokenHash: _ownerTokenHash, ...rsvp }) => rsvp),
     songs: state.songs,
     photos: state.photos.map(({ ownerTokenHash: _ownerTokenHash, ...photo }) => photo),
   };
@@ -126,12 +125,8 @@ const server = Bun.serve({
           name,
           attendance: attendance as RSVP["attendance"],
           partySize: Math.min(6, Math.max(1, Number(body.partySize) || 1)),
-          email: clean(body.email, 160),
-          phone: clean(body.phone, 40),
-          contactApp: clean(body.contactApp, 30),
           dietary: clean(body.dietary),
           contribution: clean(body.contribution, 160),
-          comment: clean(body.comment),
           createdAt: new Date().toISOString(),
           ownerTokenHash: await hashOwnerToken(ownerToken),
         };

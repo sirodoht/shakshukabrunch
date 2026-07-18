@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f04b2f" />
-    <meta name="description" content="Shakshuka Sunday — a nine-person brunch on 19 July 2026." />
-    <title>Shakshuka Sunday · 19 July</title>
+    <meta name="description" content="Brunching with shakshuka on Sunday!" />
+    <meta property="og:title" content="Shakshuka Brunch at Heartfort" />
+    <meta property="og:description" content="Brunching with shakshuka on Sunday!" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Shakshuka Brunch at Heartfort" />
+    <meta name="twitter:description" content="Brunching with shakshuka on Sunday!" />
+    <title>Shakshuka Brunch at Heartfort</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,11 +81,11 @@
           <p>I love plans. Not because I follow them. Just because I have something to ignore.</p>
         </div>
 
-        <div class="now-board" id="nowBoard">
+        <div class="now-board">
           <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" type="button">Preview event day</button></div>
           <div class="now-grid">
             <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">We have sooo much time till Sunday!</span><div class="countdown-large" id="boardCountdown" role="timer" aria-live="off"></div></div>
-            <div class="next-up"><p>Up next</p><h3 id="happeningNext">Chopping Club</h3><span id="nextTime">11:00</span></div>
+            <div><p>Up next</p><h3 id="happeningNext">Chopping Club</h3><span id="nextTime">11:00</span></div>
           </div>
         </div>
 
@@ -97,7 +103,7 @@
           <div class="rsvp-copy">
             <p class="kicker light">RSVP Optional</p>
             <h2>Are you in?</h2>
-            <p>Forms are so much fun to fill, especially this one!</p>
+            <p>Forms are so much fun to fill in, especially this one!</p>
             <div class="seat-counter">
               <div class="seat-number"><strong id="confirmedCount">0</strong><span>/ 128</span></div>
               <div><b>seats claimed</b><p id="seatMessage">Each plate has 7 lines, either black or white.</p></div>
@@ -127,7 +133,7 @@
       <section class="recipe-section wrap" id="recipe">
         <div class="recipe-heading">
           <div><p class="kicker">The main event</p><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
-          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">9</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div><small id="recipeSyncNote">Planned table size</small></div>
+          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">8</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div><small id="recipeSyncNote">Planned table size</small></div>
         </div>
 
         <div class="recipe-layout">
@@ -171,7 +177,7 @@
         </div>
         <form class="upload-form" id="photoForm">
           <label class="drop-zone" for="photoInput"><input id="photoInput" name="image" type="file" accept="image/*" required /><span class="upload-icon">↥</span><strong>Drop a photo</strong><small>or tap to choose · max 8 MB</small><img id="photoPreview" alt="Selected photo preview" /></label>
-          <div class="upload-fields"><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Penelope" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
+          <div><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Penelope" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
         </form>
         <div class="gallery-grid" id="galleryGrid"><div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div></div>
       </section>

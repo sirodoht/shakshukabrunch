@@ -1,11 +1,11 @@
 const $ = (selector) => document.querySelector(selector);
-const plannedGuests = 9;
+const defaultServings = 8;
 const seatCapacity = 128;
 const photoOwnerStorageKey = "shakshuka-photo-owners";
 const rsvpOwnerStorageKey = "shakshuka-rsvp-owners";
 const adminStorageKey = "shakshuka-admin-mode";
 let state = { rsvps: [], songs: [], photos: [] };
-let recipeServings = plannedGuests;
+let recipeServings = defaultServings;
 let recipeManuallyChanged = false;
 let photoOwnerTokens = loadPhotoOwnerTokens();
 let rsvpOwnerTokens = loadRsvpOwnerTokens();
@@ -62,7 +62,7 @@ const ingredients = [
   { name: "smoked paprika", per: 1 / 3, unit: "tsp", round: "half" },
   { name: "fresh chilli", per: 1 / 6, unit: "", round: "half" },
   { name: "feta", per: 100 / 3, unit: "g", round: "25" },
-  { name: "flatbreads / pittas", per: 1.25, unit: "", round: "whole" },
+  { name: "sourdough slices", per: 1.25, unit: "", round: "whole" },
   { name: "parsley or coriander", per: 1 / 9, unit: "bunch", round: "quarter" },
 ];
 
@@ -102,16 +102,12 @@ function renderState({ syncRecipe = true } = {}) {
   $("#confirmedCount").textContent = confirmed;
   $("#seatMessage").textContent = confirmed === 0 ? "Each plate has 7 lines, either black or white." : confirmed < seatCapacity ? `${seatCapacity - confirmed} ${seatCapacity - confirmed === 1 ? "seat" : "seats"} still doing absolutely nothing.` : confirmed === seatCapacity ? "A perfectly full pan. Magnificent." : `${confirmed - seatCapacity} over plan. We’ll get a bigger pan.`;
 
-  const visibleRsvps = state.rsvps.filter((r) => r.attendance !== "no");
-
   const manifestRsvps = adminMode ? state.rsvps : state.rsvps.filter((rsvp) => rsvp.attendance !== "no" || rsvpOwnerTokens[rsvp.id]);
   $("#guestList").innerHTML = manifestRsvps.length ? manifestRsvps.map((rsvp) => {
     const details = [
       `<div><dt>Party size</dt><dd>${rsvp.partySize}</dd></div>`,
       rsvp.dietary ? `<div><dt>Food notes</dt><dd>${escapeHtml(rsvp.dietary)}</dd></div>` : "",
       rsvp.contribution ? `<div><dt>Bringing</dt><dd>${escapeHtml(rsvp.contribution)}</dd></div>` : "",
-      rsvp.contactApp ? `<div><dt>Contact via</dt><dd>${escapeHtml(rsvp.contactApp)}</dd></div>` : "",
-      rsvp.comment ? `<div><dt>Extra intel</dt><dd>${escapeHtml(rsvp.comment)}</dd></div>` : "",
     ].filter(Boolean).join("");
     const attendanceLabel = rsvp.attendance === "yes" ? "Coming" : rsvp.attendance === "maybe" ? "Maybe-ish" : "Not coming";
     const canDelete = adminMode || rsvpOwnerTokens[rsvp.id];
@@ -323,7 +319,6 @@ $("#guestList").addEventListener("click", async (event) => {
 });
 
 if (adminMode) {
-  document.body.classList.add("admin-mode");
   $("#adminBar").hidden = false;
 }
 
