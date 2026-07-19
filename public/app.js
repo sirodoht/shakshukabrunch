@@ -14,6 +14,8 @@ let adminMode = loadAdminMode();
 let lightboxIndex = -1;
 let lightboxTrigger = null;
 
+$("#printPage").addEventListener("click", () => window.print());
+
 function loadAdminMode() {
   try {
     if (["/admin", "/admin/"].includes(window.location.pathname)) localStorage.setItem(adminStorageKey, "true");
