@@ -11,6 +11,8 @@ let photoOwnerTokens = loadPhotoOwnerTokens();
 let rsvpOwnerTokens = loadRsvpOwnerTokens();
 let songOwnerTokens = loadSongOwnerTokens();
 let adminMode = loadAdminMode();
+let lightboxIndex = -1;
+let lightboxTrigger = null;
 
 function loadAdminMode() {
   try {
@@ -142,7 +144,40 @@ function renderState({ syncRecipe = true } = {}) {
     return `<li><div class="song-row"><div class="song-details"><strong>${song.url ? `<a href="${escapeHtml(song.url)}" target="_blank" rel="noreferrer">${escapeHtml(song.title)} ↗</a>` : escapeHtml(song.title)}</strong><span>${escapeHtml(song.artist || "Artist unknown")} · added by ${escapeHtml(song.addedBy)}</span></div>${canDelete ? `<button class="song-delete" type="button" data-song-id="${escapeHtml(song.id)}" aria-label="Delete ${escapeHtml(song.title)} from the queue">×</button>` : ""}</div></li>`;
   }).join("") : `<li class="empty-state">Currently silence.</li>`;
 
-  $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
+  $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo, index) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<button class="photo-open" type="button" data-photo-index="${index}" aria-label="View ${escapeHtml(photo.caption || "brunch gallery photo")} full screen"><img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /></button><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
+}
+
+function showLightboxPhoto(index) {
+  if (!state.photos.length) return;
+  lightboxIndex = (index + state.photos.length) % state.photos.length;
+  const photo = state.photos[lightboxIndex];
+  $("#lightboxImage").src = photo.url;
+  $("#lightboxImage").alt = photo.caption || "Brunch gallery photo";
+  $("#lightboxCaption").textContent = photo.caption || "Untitled brunch moment";
+  $("#lightboxUploader").textContent = photo.uploader ? `by ${photo.uploader}` : "";
+  $("#lightboxCount").textContent = `${lightboxIndex + 1} / ${state.photos.length}`;
+  const hasMultiplePhotos = state.photos.length > 1;
+  $("#lightboxPrevious").hidden = !hasMultiplePhotos;
+  $("#lightboxNext").hidden = !hasMultiplePhotos;
+}
+
+function openLightbox(index, trigger) {
+  lightboxTrigger = trigger;
+  showLightboxPhoto(index);
+  $("#photoLightbox").hidden = false;
+  document.body.classList.add("lightbox-open");
+  $("#lightboxClose").focus();
+}
+
+function closeLightbox() {
+  const lightbox = $("#photoLightbox");
+  if (lightbox.hidden) return;
+  lightbox.hidden = true;
+  document.body.classList.remove("lightbox-open");
+  $("#lightboxImage").removeAttribute("src");
+  lightboxTrigger?.focus();
+  lightboxTrigger = null;
+  lightboxIndex = -1;
 }
 
 async function api(path, options) {
@@ -323,7 +358,11 @@ $("#photoForm").addEventListener("submit", async (event) => {
 
 $("#galleryGrid").addEventListener("click", async (event) => {
   const button = event.target.closest(".photo-delete");
-  if (!button) return;
+  if (!button) {
+    const photoButton = event.target.closest(".photo-open");
+    if (photoButton) openLightbox(Number(photoButton.dataset.photoIndex), photoButton);
+    return;
+  }
   const photoId = button.dataset.photoId;
   const ownerToken = photoOwnerTokens[photoId];
   if ((!adminMode && !ownerToken) || !window.confirm("Remove this photo from the sunny roll?")) return;
@@ -343,6 +382,20 @@ $("#galleryGrid").addEventListener("click", async (event) => {
     button.disabled = false;
     showToast(error.message);
   }
+});
+
+$("#lightboxPrevious").addEventListener("click", () => showLightboxPhoto(lightboxIndex - 1));
+$("#lightboxNext").addEventListener("click", () => showLightboxPhoto(lightboxIndex + 1));
+$("#lightboxClose").addEventListener("click", closeLightbox);
+$("#photoLightbox").addEventListener("click", (event) => {
+  if (!event.target.closest(".lightbox-arrow, .lightbox-close")) closeLightbox();
+});
+
+document.addEventListener("keydown", (event) => {
+  if ($("#photoLightbox").hidden) return;
+  if (event.key === "Escape") closeLightbox();
+  if (event.key === "ArrowLeft") showLightboxPhoto(lightboxIndex - 1);
+  if (event.key === "ArrowRight") showLightboxPhoto(lightboxIndex + 1);
 });
 
 $("#guestList").addEventListener("click", async (event) => {
