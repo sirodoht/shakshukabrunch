@@ -31,6 +31,7 @@ nav a:hover { color: var(--tomato); }
 .print-button { border: 0; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); padding: 4px 0; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 .print-button:hover { color: var(--tomato); border-color: var(--tomato); }
 .print-button:focus-visible { outline: 3px solid var(--yolk); outline-offset: 4px; }
+.print-button:disabled { opacity: .55; cursor: wait; }
 .button { border: 1.5px solid var(--ink); border-radius: 100px; background: var(--tomato); color: white; min-height: 52px; padding: 0 24px; display: inline-flex; align-items: center; justify-content: center; gap: 18px; text-decoration: none; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); transition: transform .2s, box-shadow .2s; }
 .button:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 .button-small { min-height: 42px; padding: 0 19px; font-size: 13px; box-shadow: 2px 2px 0 var(--ink); }

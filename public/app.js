@@ -1,3 +1,5 @@
+import { activatePrintImages, preparePrintImages, restoreScreenImages } from "./print-images.js";
+
 const $ = (selector) => document.querySelector(selector);
 const defaultServings = 4;
 const photoOwnerStorageKey = "shakshuka-photo-owners";
@@ -14,7 +16,27 @@ let adminMode = loadAdminMode();
 let lightboxIndex = -1;
 let lightboxTrigger = null;
 
-$("#printPage").addEventListener("click", () => window.print());
+async function printPage(event) {
+  const button = event.currentTarget;
+  const label = button.innerHTML;
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  button.textContent = "Preparing PDF…";
+  try {
+    await preparePrintImages();
+    activatePrintImages();
+    window.print();
+  } finally {
+    restoreScreenImages();
+    button.innerHTML = label;
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+  }
+}
+
+$("#printPage").addEventListener("click", printPage);
+window.addEventListener("beforeprint", () => activatePrintImages());
+window.addEventListener("afterprint", () => restoreScreenImages());
 
 function loadAdminMode() {
   try {
@@ -147,6 +169,9 @@ function renderState({ syncRecipe = true } = {}) {
   }).join("") : `<li class="empty-state">Currently silence.</li>`;
 
   $("#galleryGrid").innerHTML = state.photos.length ? state.photos.map((photo, index) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<button class="photo-open" type="button" data-photo-index="${index}" aria-label="View ${escapeHtml(photo.caption || "brunch gallery photo")} full screen"><img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /></button><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
+  const prepareWhenIdle = () => void preparePrintImages();
+  if ("requestIdleCallback" in window) window.requestIdleCallback(prepareWhenIdle, { timeout: 4_000 });
+  else window.setTimeout(prepareWhenIdle, 0);
 }
 
 function showLightboxPhoto(index) {
