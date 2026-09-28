@@ -16,8 +16,9 @@ let adminMode = loadAdminMode();
 let lightboxIndex = -1;
 let lightboxTrigger = null;
 
-async function printPage(event) {
-  const button = event.currentTarget;
+async function printPage() {
+  const button = $("#printPage");
+  if (button.disabled) return;
   const label = button.innerHTML;
   button.disabled = true;
   button.setAttribute("aria-busy", "true");
@@ -35,6 +36,11 @@ async function printPage(event) {
 }
 
 $("#printPage").addEventListener("click", printPage);
+window.addEventListener("keydown", (event) => {
+  if (event.key.toLowerCase() !== "p" || (!event.metaKey && !event.ctrlKey) || event.altKey || event.shiftKey) return;
+  event.preventDefault();
+  void printPage();
+});
 window.addEventListener("beforeprint", () => void activatePrintImages());
 window.addEventListener("afterprint", () => restoreScreenImages());
 
