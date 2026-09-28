@@ -1,10 +1,15 @@
 const defaultMaxDimension = 800;
 const defaultQuality = .65;
 const imagePreparations = new WeakMap();
+const scheduledPreparations = new WeakMap();
 
-function dataUrlBytes(dataUrl) {
-  const comma = dataUrl.indexOf(",");
-  return comma === -1 ? 0 : Math.ceil((dataUrl.length - comma - 1) * .75);
+function canvasToBlob(canvas, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Could not encode a gallery image for print."));
+    }, "image/jpeg", quality);
+  });
 }
 
 function loadImage(source) {
@@ -18,7 +23,7 @@ function loadImage(source) {
 }
 
 async function preparePrintImage(element, { maxDimension, quality }) {
-  if (element.dataset.printSrc) return dataUrlBytes(element.dataset.printSrc);
+  if (element.dataset.printSrc) return Number(element.dataset.printBytes) || 0;
   const existingPreparation = imagePreparations.get(element);
   if (existingPreparation) return existingPreparation;
 
@@ -37,23 +42,91 @@ async function preparePrintImage(element, { maxDimension, quality }) {
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const printSource = canvas.toDataURL("image/jpeg", quality);
-    element.dataset.printSrc = printSource;
-    return dataUrlBytes(printSource);
+    const blob = await canvasToBlob(canvas, quality);
+    canvas.width = 1;
+    canvas.height = 1;
+    element.dataset.printSrc = URL.createObjectURL(blob);
+    element.dataset.printBytes = String(blob.size);
+    return blob.size;
   })().catch(() => 0);
 
   imagePreparations.set(element, preparation);
   return preparation;
 }
 
+function requestIdleWork(callback) {
+  if ("requestIdleCallback" in window) {
+    return { type: "idle", id: window.requestIdleCallback(callback, { timeout: 4_000 }) };
+  }
+  return { type: "timeout", id: window.setTimeout(callback, 0) };
+}
+
+function cancelIdleWork(handle) {
+  if (!handle) return;
+  if (handle.type === "idle") window.cancelIdleCallback(handle.id);
+  else window.clearTimeout(handle.id);
+}
+
+function releasePrintImage(image) {
+  if (image.hasAttribute("data-screen-src")) {
+    image.setAttribute("src", image.dataset.screenSrc);
+    image.removeAttribute("data-screen-src");
+  }
+  if (image.dataset.printSrc) URL.revokeObjectURL(image.dataset.printSrc);
+  image.removeAttribute("data-print-src");
+  image.removeAttribute("data-print-bytes");
+  imagePreparations.delete(image);
+}
+
+function cancelScheduledPreparation(root, { releaseInFlight = false } = {}) {
+  const state = scheduledPreparations.get(root);
+  if (!state) return;
+  state.cancelled = true;
+  state.releaseInFlight = releaseInFlight;
+  cancelIdleWork(state.handle);
+  scheduledPreparations.delete(root);
+}
+
 export async function preparePrintImages(root = document, options = {}) {
+  cancelScheduledPreparation(root);
   const images = [...root.querySelectorAll(".photo-card img")];
   const settings = {
     maxDimension: options.maxDimension || defaultMaxDimension,
     quality: options.quality || defaultQuality,
   };
-  const sizes = await Promise.all(images.map((image) => preparePrintImage(image, settings)));
-  return { count: images.length, bytes: sizes.reduce((total, size) => total + size, 0) };
+  let bytes = 0;
+  for (const image of images) bytes += await preparePrintImage(image, settings);
+  return { count: images.length, bytes };
+}
+
+export function schedulePrintImages(root = document, options = {}) {
+  cancelScheduledPreparation(root, { releaseInFlight: true });
+  const images = [...root.querySelectorAll(".photo-card img")];
+  const settings = {
+    maxDimension: options.maxDimension || defaultMaxDimension,
+    quality: options.quality || defaultQuality,
+  };
+  const state = { cancelled: false, releaseInFlight: false, handle: null };
+  scheduledPreparations.set(root, state);
+
+  const prepareNext = () => {
+    state.handle = null;
+    if (state.cancelled) return;
+    const image = images.shift();
+    if (!image) {
+      scheduledPreparations.delete(root);
+      return;
+    }
+    void preparePrintImage(image, settings).finally(() => {
+      if (state.cancelled) {
+        if (state.releaseInFlight) releasePrintImage(image);
+        return;
+      }
+      state.handle = requestIdleWork(prepareNext);
+    });
+  };
+
+  state.handle = requestIdleWork(prepareNext);
 }
 
 export async function activatePrintImages(root = document) {
@@ -81,4 +154,9 @@ export function restoreScreenImages(root = document) {
     image.setAttribute("src", image.dataset.screenSrc);
     image.removeAttribute("data-screen-src");
   });
+}
+
+export function releasePrintImages(root = document) {
+  cancelScheduledPreparation(root, { releaseInFlight: true });
+  root.querySelectorAll(".photo-card img[data-print-src]").forEach(releasePrintImage);
 }
