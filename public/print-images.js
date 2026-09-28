@@ -56,12 +56,24 @@ export async function preparePrintImages(root = document, options = {}) {
   return { count: images.length, bytes: sizes.reduce((total, size) => total + size, 0) };
 }
 
-export function activatePrintImages(root = document) {
+export async function activatePrintImages(root = document) {
+  const activatedImages = [];
   root.querySelectorAll(".photo-card img[data-print-src]").forEach((image) => {
     if (image.hasAttribute("data-screen-src")) return;
     image.dataset.screenSrc = image.getAttribute("src") || "";
     image.setAttribute("src", image.dataset.printSrc);
+    activatedImages.push(image);
   });
+
+  await Promise.all(activatedImages.map(async (image) => {
+    try {
+      await image.decode();
+    } catch {
+      image.setAttribute("src", image.dataset.screenSrc);
+      image.removeAttribute("data-screen-src");
+      await image.decode().catch(() => undefined);
+    }
+  }));
 }
 
 export function restoreScreenImages(root = document) {

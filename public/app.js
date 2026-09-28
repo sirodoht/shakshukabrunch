@@ -24,7 +24,7 @@ async function printPage(event) {
   button.textContent = "Preparing PDF…";
   try {
     await preparePrintImages();
-    activatePrintImages();
+    await activatePrintImages();
     window.print();
   } finally {
     restoreScreenImages();
@@ -35,7 +35,7 @@ async function printPage(event) {
 }
 
 $("#printPage").addEventListener("click", printPage);
-window.addEventListener("beforeprint", () => activatePrintImages());
+window.addEventListener("beforeprint", () => void activatePrintImages());
 window.addEventListener("afterprint", () => restoreScreenImages());
 
 function loadAdminMode() {
