@@ -161,7 +161,7 @@ function renderState({ syncRecipe = true } = {}) {
     const attendanceLabel = rsvp.attendance === "yes" ? "Coming" : rsvp.attendance === "maybe" ? "Maybe-ish" : "Not coming";
     const canDelete = adminMode || rsvpOwnerTokens[rsvp.id];
     return `<article class="guest-card${details ? "" : " guest-card-name-only"}"><header><h4>${escapeHtml(rsvp.name)}</h4><div class="guest-card-actions"><span class="attendance-badge ${rsvp.attendance}">${attendanceLabel}</span>${canDelete ? `<button class="guest-delete" type="button" data-rsvp-id="${escapeHtml(rsvp.id)}" aria-label="Delete ${escapeHtml(rsvp.name)} from the guest list">×</button>` : ""}</div></header>${details ? `<dl>${details}</dl>` : ""}</article>`;
-  }).join("") : `<p class="empty-state">Nobody has materialised yet. Be the first brunch character.</p>`;
+  }).join("") : `<p class="empty-state">Nobody has materialised yet. Be the first bruncher.</p>`;
 
   if (syncRecipe && !recipeManuallyChanged) {
     recipeServings = Math.max(defaultServings, confirmed);
@@ -244,41 +244,23 @@ function showToast(message) {
   window.setTimeout(() => toast.classList.remove("show"), 3400);
 }
 
-function startTickerMoodSwings() {
+function startTickerAcceleration() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const ticker = $(".ticker div");
   const animation = ticker?.getAnimations()[0];
   if (!animation) return;
-  let nextSpeedIsFast = true;
+  const startingRate = .2;
+  const startedAt = performance.now();
 
-  function chooseNewSpeed() {
-    const startingRate = animation.playbackRate;
-    const isFastMode = nextSpeedIsFast;
-    const targetRate = isFastMode
-      ? 2.2 + Math.random() * 2.4
-      : .18 + Math.random() * .52;
-    nextSpeedIsFast = !nextSpeedIsFast;
-    const startedAt = performance.now();
-    const transitionTime = 180 + Math.random() * 520;
-
-    function glide(timestamp) {
-      const progress = Math.min(1, (timestamp - startedAt) / transitionTime);
-      const eased = progress * progress * (3 - 2 * progress);
-      const nextRate = startingRate + (targetRate - startingRate) * eased;
-      if (typeof animation.updatePlaybackRate === "function") animation.updatePlaybackRate(nextRate);
-      else animation.playbackRate = nextRate;
-
-      if (progress < 1) window.requestAnimationFrame(glide);
-      else {
-        const holdTime = 180 + Math.random() * 900;
-        window.setTimeout(chooseNewSpeed, holdTime * (isFastMode ? 4 : 1));
-      }
-    }
-
-    window.requestAnimationFrame(glide);
+  function updateSpeed() {
+    const elapsedSeconds = Math.floor((performance.now() - startedAt) / 1_000);
+    const rate = startingRate * 1.07 ** elapsedSeconds;
+    if (typeof animation.updatePlaybackRate === "function") animation.updatePlaybackRate(rate);
+    else animation.playbackRate = rate;
   }
 
-  window.setTimeout(chooseNewSpeed, 1_000);
+  updateSpeed();
+  window.setInterval(updateSpeed, 1_000);
 }
 
 $("#minusServing").addEventListener("click", () => { recipeManuallyChanged = true; recipeServings = Math.max(1, recipeServings - 1); renderRecipe(); });
@@ -481,7 +463,7 @@ const schedule = [...document.querySelectorAll(".schedule li")].map((item) => {
     aside: item.querySelector("p").textContent.trim(),
   };
 });
-const officialBrunchTime = new Date("2026-07-19T11:30:00+01:00");
+const officialBrunchTime = new Date("2026-10-18T11:30:00+01:00");
 let previewIndex = null;
 
 function updateCountdown() {
@@ -526,12 +508,12 @@ function updateLiveBoard() {
     next = schedule[0];
   } else if (now > new Date(last.getTime() + 2 * 60 * 60 * 1000)) {
     current = { title: "The pans are resting", aside: "Thanks for bringing your whole lovely self." };
-    next = { title: "Leftover shakshuka for breakfast", at: "2026-07-20T09:00:00+01:00" };
+    next = { title: "Leftover shakshuka for breakfast", at: "2026-10-19T09:00:00+01:00" };
   } else {
     const index = [...schedule].reverse().findIndex((item) => now >= new Date(item.at));
     const realIndex = schedule.length - 1 - index;
     current = schedule[Math.max(0, realIndex)];
-    next = schedule[realIndex + 1] || { title: "A very slow goodbye", at: "2026-07-19T16:00:00+01:00" };
+    next = schedule[realIndex + 1] || { title: "A very slow goodbye", at: "2026-10-18T16:00:00+01:00" };
   }
   $("#happeningNow").textContent = current.title;
   $("#nowAside").textContent = current.aside;
@@ -548,7 +530,7 @@ $("#previewDay").addEventListener("click", (event) => {
 
 async function init() {
   renderRecipe();
-  startTickerMoodSwings();
+  startTickerAcceleration();
   updateCountdown();
   updateLiveBoard();
   window.setInterval(updateCountdown, 1_000);

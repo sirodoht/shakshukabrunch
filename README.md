@@ -1,6 +1,9 @@
 # Shakshuka Sunday
 
-A playful, live brunch hub for Sunday, 19 July 2026. It includes the day plan, RSVP and contribution tracking, a recipe that scales with confirmed guests, a shared song queue, a live event board, and photo uploads.
+A playful, live brunch hub for the second brunch on Sunday, 18 October 2026.
+The first brunch, on 19 July 2026, is preserved at `/first-brunch`.
+The site includes the day plan, RSVP and contribution tracking, a recipe that
+scales with confirmed guests, a shared song queue, a live event board, and photo uploads.
 
 ## Run it
 
