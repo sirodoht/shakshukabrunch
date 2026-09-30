@@ -121,3 +121,7 @@ footer { min-height: 390px; color: white; display: grid; place-items: center; pa
 @media (max-width: 900px) { .guest-list { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 680px) { .guest-board-heading { grid-template-columns: 1fr; gap: 18px; }.guest-list { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+/* The archived guest list stands on its own without the RSVP block. */
+.guest-board { margin-top: 0; padding-top: 0; border-top: 0; }
+.rsvp-section::before { content: none; }

@@ -22,7 +22,7 @@ async function printPage() {
   const label = button.innerHTML;
   button.disabled = true;
   button.setAttribute("aria-busy", "true");
-  button.textContent = "Preparing PDF…";
+  button.textContent = "Preparing to print…";
   try {
     await preparePrintImages($("#galleryGrid"));
     await activatePrintImages();
@@ -214,7 +214,15 @@ function closeLightbox() {
 }
 
 async function api(path, options) {
-  const response = await fetch(path, options);
+  if (options?.method && options.method !== "GET" && !state.brunchId) {
+    throw new Error("The brunch is still loading. Please try again.");
+  }
+  // Keep this tab's writes tied to the brunch it loaded, even if the active
+  // brunch changes elsewhere while the tab remains open.
+  const scopedPath = state.brunchId
+    ? `/api/brunches/${state.brunchId}/${path.slice("/api/".length)}`
+    : path;
+  const response = await fetch(scopedPath, options);
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || "Something went wrong.");
   return result;

@@ -12,18 +12,18 @@
     <meta name="twitter:title" content="Shakshuka Brunch at Heartfort" />
     <meta name="twitter:description" content="Brunching with shakshuka on Sunday!" />
     <title>Shakshuka Brunch at Heartfort</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/first-brunch/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/print.css" media="print" />
+    <link rel="stylesheet" href="/first-brunch/styles.css" />
+    <link rel="stylesheet" href="/first-brunch/print.css" media="print" />
   </head>
   <body>
     <div class="paper-noise" aria-hidden="true"></div>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="Shakshuka Brunch home">
-        <img class="brand-sun" src="/favicon.svg" alt="" />
+      <a class="brand" href="/first-brunch" aria-label="Shakshuka Brunch home">
+        <img class="brand-sun" src="/first-brunch/favicon.svg" alt="" />
         <span>SHAKSHUKABRUNCH</span>
       </a>
       <nav aria-label="Main navigation">
@@ -35,7 +35,6 @@
       </nav>
       <div class="header-actions">
         <button class="print-button" id="printPage" type="button" aria-label="Print this page">Print</button>
-        <a class="button button-small" href="#rsvp">RSVP <span>→</span></a>
       </div>
     </header>
     <aside class="admin-bar" id="adminBar" hidden>
@@ -48,9 +47,6 @@
           <p class="eyebrow"><span></span> Sunday, 19 July 2026</p>
           <h1>Brunch.<br />Brunch.<br /><em>Brunch.</em></h1>
           <p class="hero-intro">Come for brunch. We’re having shakshuka! Which is tomatoes + eggs. I’ve never cooked it before. Exciting!</p>
-          <div class="hero-actions">
-            <a class="button" href="#rsvp">Coming? <span>→</span></a>
-          </div>
           <div class="date-stamp" aria-label="Sunday 19 July at 11:30">
             <strong>SUN</strong><strong>19</strong><span>JUL<br />11:30</span>
           </div>
@@ -86,7 +82,7 @@
         </div>
 
         <div class="now-board">
-          <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" type="button">Preview event day</button></div>
+          <div class="board-topline"><span class="live-dot"></span> LIVE BRUNCH BOARD <button class="preview-button" id="previewDay" disabled type="button">Preview event day</button></div>
           <div class="now-grid">
             <div><p>Happening now</p><h3 id="happeningNow">Counting down to Sunday</h3><span id="nowAside">We have sooo much time till Sunday!</span><div class="countdown-large" id="boardCountdown" role="timer" aria-live="off"></div></div>
             <div><p>Up next</p><h3 id="happeningNext">Chopping Club</h3><span id="nextTime">11:00</span></div>
@@ -102,29 +98,7 @@
         </ol>
       </section>
 
-      <section class="rsvp-section" id="rsvp">
-        <div class="wrap rsvp-grid">
-          <div class="rsvp-copy">
-            <p class="kicker light">RSVP Optional</p>
-            <h2>Are you in?</h2>
-            <p>Forms are so much fun to fill in, especially this one!</p>
-            <div class="seat-counter">
-              <div class="seat-number"><strong id="confirmedCount">0</strong><span>/ 128</span></div>
-              <div><b>seats claimed</b><p id="seatMessage">Each plate has 7 lines, either black or white.</p></div>
-            </div>
-          </div>
-
-          <form class="card-form" id="rsvpForm">
-            <div class="form-heading"><span>?</span><div><h3>RSVP form</h3><p>Fun form to fill in.</p></div></div>
-            <div class="field"><label for="name">Your name *</label><input id="name" name="name" required autocomplete="name" placeholder="You don't have to be you during brunch, play another person!" /></div>
-            <fieldset class="attendance"><legend>Can you make it? *</legend><label><input type="radio" name="attendance" value="yes" required checked /><span>Yes! 🍳</span></label><label><input type="radio" name="attendance" value="maybe" /><span>Maybe-ish</span></label><label><input type="radio" name="attendance" value="no" /><span>Sadly no</span></label></fieldset>
-            <div class="field"><label for="partySize">How many?</label><select id="partySize" name="partySize"><option value="1">Just me</option><option value="2">Two of us</option><option value="3">Three of us</option><option value="4">Four of us</option></select></div>
-            <div class="field"><label for="dietary">Dietary needs</label><input id="dietary" name="dietary" placeholder="No dairy, you hate mushrooms, anything" /></div>
-            <div class="field"><label for="contribution">I will bring... <small>(optional)</small></label><small class="field-note">You don’t need to bring anything, but if you do, let everybody know so there is no duplication (unless it’s a surprise!)</small><input id="contribution" name="contribution" placeholder="flowers, orange juice, air from my lungs..." /><small class="field-note" id="duplicateNote"></small></div>
-            <button class="button button-dark" type="submit">Send my RSVP <span>→</span></button>
-            <p class="form-status" id="rsvpStatus" role="status"></p>
-          </form>
-        </div>
+      <section class="rsvp-section">
         <div class="wrap guest-board" id="guests">
           <div class="guest-board-heading">
             <div><p class="kicker light">The List</p><h3>Who’s coming?</h3></div>
@@ -137,7 +111,7 @@
       <section class="recipe-section wrap" id="recipe">
         <div class="recipe-heading">
           <div><p class="kicker">The main event</p><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
-          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">4</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div></div>
+          <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" disabled aria-label="One fewer serving">−</button><strong id="servingCount">4</strong><button type="button" id="plusServing" disabled aria-label="One more serving">+</button></div></div>
         </div>
 
         <div class="recipe-layout">
@@ -159,13 +133,6 @@
           <div>
             <p class="kicker">Bring a vinyl</p><h2>Poly-DJ Brunch</h2>
             <p>Add one song. Or twenty.</p>
-            <form class="song-form" id="songForm">
-              <div class="field"><label for="songTitle">Song *</label><input id="songTitle" name="title" required placeholder="If I Had $1,000,000" /></div>
-              <div class="two-fields"><div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Barenaked Ladies" /></div><div class="field"><label for="addedBy">Added by</label><input id="addedBy" name="addedBy" placeholder="Odysseus" /></div></div>
-              <div class="field"><label for="songUrl">Spotify / YouTube link <small>optional</small></label><input id="songUrl" name="url" type="url" placeholder="https://…" /></div>
-              <button class="button" type="submit">Add to the queue <span>♫</span></button>
-              <p class="form-status" id="songStatus" role="status"></p>
-            </form>
           </div>
           <div class="record-sleeve">
             <div class="record"><div><span>SHAKSHUKA</span><strong>SIDE A</strong><small>serve warm</small></div></div>
@@ -179,10 +146,6 @@
           <div><p class="kicker">Proof it happened</p><h2>Gallery</h2></div>
           <p>This is our local instagram. Food pictures encouraged.</p>
         </div>
-        <form class="upload-form" id="photoForm">
-          <label class="drop-zone" for="photoInput"><input id="photoInput" name="image" type="file" accept="image/*" required /><span class="upload-icon">↥</span><strong>Drop a photo</strong><small>or tap to choose · max 8 MB</small><img id="photoPreview" alt="Selected photo preview" /></label>
-          <div><div class="field"><label for="caption">Caption</label><input id="caption" name="caption" placeholder="The first egg has landed" /></div><div class="field"><label for="uploader">Photographer</label><input id="uploader" name="uploader" placeholder="Penelope" /></div><button class="button button-dark" type="submit">Add to the roll <span>→</span></button><p class="form-status" id="photoStatus" role="status"></p></div>
-        </form>
         <div class="gallery-grid" id="galleryGrid"><div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div></div>
       </section>
     </main>
@@ -212,6 +175,6 @@
       </figure>
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="Next photo">→</button>
     </div>
-    <script type="module" src="/app.js"></script>
+    <script type="module" src="/first-brunch/app.js"></script>
   </body>
 </html>
