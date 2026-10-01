@@ -58,11 +58,51 @@ h1 em { color: var(--tomato); font-style: normal; text-shadow: 2px 2px 0 var(--i
 .pan-handle { position: absolute; width: 240px; height: 68px; border: 16px solid var(--ink); background: #654f47; border-radius: 25px 80px 80px 25px; right: -72px; bottom: 92px; transform: rotate(21deg); z-index: 1; }
 .egg { position: absolute; width: 31%; height: 27%; background: #fff7df; border-radius: 51% 49% 42% 58% / 49% 44% 56% 51%; z-index: 3; box-shadow: inset 0 -5px 10px rgba(145, 75, 31, .15); }
 .egg::after { content: ""; position: absolute; width: 42%; aspect-ratio: 1; border-radius: 50%; background: var(--yolk); left: 29%; top: 25%; box-shadow: inset -5px -5px 0 #e9a51a; }
-.egg-one { left: 16%; top: 19%; transform: rotate(12deg); }.egg-two { right: 13%; top: 27%; transform: rotate(-18deg); }.egg-three { left: 34%; bottom: 14%; transform: rotate(-4deg); }
+.egg-one { --egg-angle: 12deg; --egg-duration: 7s; --egg-delay: -2.4s; left: 16%; top: 19%; transform: rotate(var(--egg-angle)); }
+.egg-two { --egg-angle: -18deg; --egg-duration: 8.3s; --egg-delay: -5.1s; --egg-outline-duration: 1.57s; right: 13%; top: 27%; transform: rotate(var(--egg-angle)); }
+.egg-three { --egg-angle: -4deg; --egg-duration: 6.4s; --egg-delay: -1.2s; --egg-outline-duration: 1.21s; left: 34%; bottom: 14%; transform: rotate(var(--egg-angle)); }
 .tomato { position: absolute; width: 8%; aspect-ratio: 1; border-radius: 45% 55%; background: #9f1e1a; z-index: 4; border: 2px solid #ff7255; }.tomato-one { left: 24%; bottom: 29%; }.tomato-two { right: 29%; top: 14%; }.tomato-three { right: 18%; bottom: 28%; }
 .herb { position: absolute; z-index: 5; color: #175d39; font-size: 30px; }.herb-one { top: 20%; left: 49%; }.herb-two { bottom: 27%; left: 18%; }.herb-three { bottom: 17%; right: 29%; }
 .steam { position: absolute; font-family: serif; font-size: 130px; color: var(--tomato); top: -17px; z-index: 1; transform: rotate(90deg); opacity: .8; }.steam-one { left: 31%; }.steam-two { left: 52%; top: -38px; color: var(--yolk); }
 .art-note { position: absolute; z-index: 5; right: 1%; top: 19%; color: var(--basil); font-weight: 800; transform: rotate(8deg); font-size: 13px; text-align: center; }.art-note::after { content: "↙"; display: block; font-size: 35px; }.art-note small { text-transform: lowercase; font-weight: 500; }
+
+/* Slow, independent wobbling with a hand-drawn "line boil". */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .egg {
+    animation:
+      egg-drift var(--egg-duration) steps(84, end) var(--egg-delay) infinite,
+      egg-outline var(--egg-outline-duration, 1.35s) steps(3, end) var(--egg-delay) infinite;
+  }
+  .egg::after { animation: yolk-wobble 3.7s ease-in-out var(--egg-delay) infinite; }
+  .egg-two::after { animation-duration: 4.6s; }
+  .egg-three::after { animation-duration: 4.1s; }
+  .steam { animation: steam-drift 5.6s ease-in-out infinite; }
+  .steam-two { animation-duration: 6.8s; animation-delay: -3.2s; }
+}
+
+@keyframes egg-drift {
+  0%, 100% { transform: translate(0, 0) rotate(var(--egg-angle)) scale(1, 1); }
+  23% { transform: translate(-8px, 10px) rotate(calc(var(--egg-angle) - 5deg)) scale(1.06, .94); }
+  51% { transform: translate(10px, 4px) rotate(calc(var(--egg-angle) + 4deg)) scale(.94, 1.06); }
+  78% { transform: translate(4px, -10px) rotate(calc(var(--egg-angle) - 2deg)) scale(1.045, .955); }
+}
+
+@keyframes egg-outline {
+  0%, 100% { border-radius: 51% 49% 42% 58% / 49% 44% 56% 51%; }
+  34% { border-radius: 45% 55% 48% 52% / 55% 50% 50% 45%; }
+  67% { border-radius: 57% 43% 45% 55% / 45% 39% 61% 55%; }
+}
+
+@keyframes yolk-wobble {
+  0%, 100% { transform: translate(0, 0) scale(1, 1); border-radius: 50%; }
+  36% { transform: translate(4px, -6px) scale(.91, 1.09); border-radius: 44% 56% 47% 53%; }
+  72% { transform: translate(-6px, 4px) scale(1.09, .92); border-radius: 56% 44% 54% 46%; }
+}
+
+@keyframes steam-drift {
+  0%, 100% { transform: translate(0, 0) rotate(90deg); opacity: .8; }
+  50% { transform: translate(5px, -8px) rotate(94deg); opacity: .55; }
+}
 .ticker { background: var(--yolk); border-block: 1.5px solid var(--ink); overflow: hidden; white-space: nowrap; transform: rotate(-.2deg); width: 100%; }
 .ticker div { display: flex; padding: 13px 0; font-size: 12px; font-weight: 800; letter-spacing: .15em; width: max-content; animation: scroll 14s linear infinite; }
 .ticker-copy { display: block; }
