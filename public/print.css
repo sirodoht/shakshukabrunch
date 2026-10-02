@@ -74,7 +74,9 @@
   .header-actions,
   .admin-bar,
   .hero-actions,
-  .hero-countdown,
+  .countdown-part,
+  .pan-status,
+  .calendar-actions,
   .ticker,
   .now-board,
   .rsvp-grid,
@@ -125,8 +127,7 @@
     padding: 18mm 0 16mm;
   }
 
-  .eyebrow,
-  .kicker {
+  .eyebrow {
     margin-bottom: 4mm;
     font-size: 7.5pt;
     letter-spacing: .14em;
@@ -148,21 +149,38 @@
     line-height: 1.5;
   }
 
-  .date-stamp {
-    width: 70mm;
-    margin-top: 16mm;
-    gap: 3mm;
-    padding: 3mm 0;
-    transform: rotate(-2deg);
+  .hero-invitation {
+    margin-top: 12mm;
   }
 
-  .date-stamp strong:nth-child(2) {
-    font-size: 34pt;
+  .invitation-calendar {
+    grid-template-columns: 20mm minmax(0, 1fr);
+    gap: 5mm;
   }
 
-  .date-stamp span {
-    padding-left: 4mm;
-    font-size: 8pt;
+  .calendar-tile {
+    width: 20mm;
+    gap: 1mm;
+  }
+
+  .calendar-tile strong {
+    font-size: 28pt;
+  }
+
+  .calendar-tile span {
+    font-size: 7pt;
+  }
+
+  .invitation-details {
+    font-size: 11pt;
+  }
+
+  .invitation-details .invitation-day {
+    font-size: 14pt;
+  }
+
+  .invitation-details .invitation-location {
+    font-size: 10pt;
   }
 
   .hero-art {
@@ -194,16 +212,6 @@
   .steam-two {
     top: 24mm;
     left: 50%;
-  }
-
-  .art-note {
-    top: 29%;
-    right: -1mm;
-    font-size: 7pt;
-  }
-
-  .art-note::after {
-    font-size: 20pt;
   }
 
   .dashboard,
@@ -553,58 +561,23 @@
   }
 
   footer {
-    min-height: 52mm;
     margin-top: 8mm;
-    padding: 7mm 0;
+    padding: 7mm;
     break-inside: avoid-page;
-    background-size: 8mm 8mm;
   }
 
-  .footer-inner {
-    min-height: 39mm;
+  .footer-ticket {
+    padding: 8mm 6mm;
   }
 
-  .footer-spec {
-    padding: 2mm 3mm;
-    font-size: 5.5pt;
+  .footer-ticket h2 {
+    font-size: 32pt;
   }
 
-  .footer-signoff {
-    grid-template-columns: 10mm auto 10mm;
-    gap: 8mm;
-    padding: 4mm;
+  .footer-date {
+    margin: 4mm 0 0;
+    font-size: 9pt;
   }
 
-  .footer-signoff strong {
-    font-size: 25pt;
-  }
 
-  .footer-datum {
-    width: 9mm;
-    height: 9mm;
-    font-size: 5.5pt;
-  }
-
-  .footer-datum::before {
-    width: 14mm;
-  }
-
-  .footer-datum::after {
-    height: 14mm;
-  }
-
-  .footer-smile {
-    font-size: 24pt;
-  }
-
-  .footer-scale {
-    height: 7mm;
-    padding: 0 3mm 2mm;
-    font-size: 5pt;
-  }
-
-  .footer-scale i {
-    width: 6mm;
-    height: 1.5mm;
-  }
 }

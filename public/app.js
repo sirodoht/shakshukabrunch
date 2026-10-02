@@ -288,8 +288,8 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
     renderState();
     form.reset();
     form.querySelector("[value=yes]").checked = true;
-    setStatus($("#rsvpStatus"), "You’re on the list. Excellent decision.");
-    showToast("RSVP saved — the recipe has done the maths ✦");
+    setStatus($("#rsvpStatus"), "You’re on the list.");
+    showToast("RSVP saved");
   } catch (error) { setStatus($("#rsvpStatus"), error.message, true); }
   finally { button.disabled = false; }
 });
@@ -463,17 +463,9 @@ let previewIndex = null;
 
 function updateCountdown() {
   const remaining = officialBrunchTime.getTime() - Date.now();
-  const heroCountdown = $("#heroCountdown");
+  const panCountdown = $("#panCountdown");
   const boardCountdown = $("#boardCountdown");
-
-  if (remaining <= 0) {
-    heroCountdown.textContent = "BRUNCH IS ON!";
-    boardCountdown.innerHTML = `<div class="countdown-unit"><strong>00</strong><small>Time to eat</small></div>`;
-    boardCountdown.style.gridTemplateColumns = "minmax(180px, 1fr)";
-    return;
-  }
-
-  const totalSeconds = Math.floor(remaining / 1000);
+  const totalSeconds = Math.max(0, Math.floor(remaining / 1000));
   const parts = [
     { label: "Days", value: Math.floor(totalSeconds / 86400) },
     { label: "Hours", value: Math.floor((totalSeconds % 86400) / 3600) },
@@ -481,7 +473,17 @@ function updateCountdown() {
     { label: "Seconds", value: totalSeconds % 60 },
   ];
   const padded = parts.map((part) => String(part.value).padStart(2, "0"));
-  heroCountdown.textContent = `${padded[0]}d ${padded[1]}h ${padded[2]}m ${padded[3]}s`;
+  ["#countdownDays", "#countdownHours", "#countdownMinutes", "#countdownSeconds"].forEach((selector, index) => {
+    $(selector).textContent = padded[index];
+  });
+  $("#panCountdownStatus").hidden = remaining > 0;
+  panCountdown.setAttribute("aria-label", remaining > 0 ? "Until brunch" : "Brunch is on!");
+
+  if (remaining <= 0) {
+    boardCountdown.innerHTML = `<div class="countdown-unit"><strong>00</strong><small>Time to eat</small></div>`;
+    boardCountdown.style.gridTemplateColumns = "minmax(180px, 1fr)";
+    return;
+  }
   boardCountdown.style.removeProperty("grid-template-columns");
   boardCountdown.innerHTML = parts.map((part, index) => `<div class="countdown-unit"><strong>${padded[index]}</strong><small>${part.label}</small></div>`).join("");
 }

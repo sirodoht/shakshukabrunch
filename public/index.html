@@ -44,30 +44,41 @@
     <main id="top">
       <section class="hero wrap">
         <div class="hero-copy">
-          <p class="eyebrow"><span></span> Sunday, 18 October 2026</p>
-          <h1>Brunch.<br />Brunch.<br /><em>Brunch.</em></h1>
+          <p class="eyebrow">Sunday, 18 October 2026</p>
+          <h1><span class="brunch-line brunch-line-one">Brunch.</span><br /><span class="brunch-line brunch-line-two">Brunch.</span><br /><em class="brunch-line brunch-line-three">Brunch.</em></h1>
           <p class="hero-intro">Come for brunch. We’re having shakshuka! Which is tomatoes + eggs. Exciting!</p>
           <div class="hero-actions">
             <a class="button" href="#rsvp">Coming? <span>→</span></a>
           </div>
-          <div class="date-stamp" aria-label="Sunday 18 October at 11:30">
-            <strong>SUN</strong><strong>18</strong><span>OCT<br />11:30</span>
-          </div>
-          <div class="hero-countdown" role="timer" aria-live="off">
-            <span>UNTIL BRUNCH</span>
-            <strong id="heroCountdown">00d 00h 00m 00s</strong>
+          <div class="hero-invitation">
+            <div class="invitation-calendar">
+              <time class="calendar-tile" datetime="2026-10-18" aria-label="18 October 2026"><strong>18</strong><span>OCT</span></time>
+              <div class="invitation-details">
+                <p class="invitation-day">Sunday</p>
+                <p><time datetime="2026-10-18T11:30:00+01:00">11:30</time></p>
+                <p class="invitation-location">Heartfort</p>
+              </div>
+            </div>
+            <div class="calendar-actions" aria-label="Add brunch to your calendar">
+              <a class="calendar-link" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Shakshuka+Brunch&amp;dates=20261018T103000Z%2F20261018T133000Z&amp;ctz=Europe%2FLondon&amp;location=Heartfort&amp;details=Come+for+brunch.+We%27re+having+shakshuka%21%0Ahttps%3A%2F%2Fshakshukabrunch.com" target="_blank" rel="noopener noreferrer">Google Calendar</a>
+              <span aria-hidden="true">·</span>
+              <a class="calendar-link" href="/shakshuka-brunch-2026-10-18.ics" download aria-label="Download for iCal or Apple Calendar">iCal</a>
+            </div>
           </div>
         </div>
 
         <div class="hero-art" aria-label="An illustrated pan of shakshuka">
           <div class="steam steam-one">∿</div><div class="steam steam-two">∿</div>
           <div class="pan-handle"></div>
-          <div class="pan">
-            <i class="egg egg-one"></i><i class="egg egg-two"></i><i class="egg egg-three"></i>
+          <div class="pan" id="panCountdown" role="timer" aria-live="off" aria-label="Until brunch">
+            <div class="egg egg-one"><span class="countdown-part egg-countdown"><strong id="countdownDays">00</strong><small>days</small></span></div>
+            <div class="egg egg-two"><span class="countdown-part egg-countdown"><strong id="countdownHours">00</strong><small>hours</small></span></div>
+            <div class="egg egg-three"><span class="countdown-part egg-countdown"><strong id="countdownMinutes">00</strong><small>min</small></span></div>
             <i class="tomato tomato-one"></i><i class="tomato tomato-two"></i><i class="tomato tomato-three"></i>
             <b class="herb herb-one">✦</b><b class="herb herb-two">✦</b><b class="herb herb-three">✦</b>
+            <span class="countdown-part pan-seconds"><strong id="countdownSeconds">00</strong><small>sec</small></span>
+            <span class="pan-status" id="panCountdownStatus" hidden>Brunch is on!</span>
           </div>
-          <p class="art-note">ONE PAN*<br /><small>*probably two, actually</small></p>
         </div>
       </section>
 
@@ -80,7 +91,7 @@
 
       <section class="dashboard wrap" id="plan">
         <div class="section-heading">
-          <div><p class="kicker">At a glance</p><h2>A loose plan.</h2></div>
+          <div><h2>A loose plan.</h2></div>
           <p>I love plans. Not because I follow them. Just because I have something to ignore.</p>
         </div>
 
@@ -104,7 +115,6 @@
       <section class="rsvp-section" id="rsvp">
         <div class="wrap rsvp-grid">
           <div class="rsvp-copy">
-            <p class="kicker light">RSVP Optional</p>
             <h2>Are you in?</h2>
             <p>Forms are so much fun to fill in, especially this one!</p>
             <div class="seat-counter">
@@ -126,7 +136,7 @@
         </div>
         <div class="wrap guest-board" id="guests">
           <div class="guest-board-heading">
-            <div><p class="kicker light">The List</p><h3>Who’s coming?</h3></div>
+            <div><h3>Who’s coming?</h3></div>
             <p>This is everyone.</p>
           </div>
           <div id="guestList" class="guest-list"><p class="empty-state">Nobody has materialised yet. Be the first bruncher.</p></div>
@@ -135,7 +145,7 @@
 
       <section class="recipe-section wrap" id="recipe">
         <div class="recipe-heading">
-          <div><p class="kicker">The main event</p><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
+          <div><h2>Shakshuka.</h2><p>Mostly tomatoes, some eggs, a bunch of spices.</p></div>
           <div class="serving-control" aria-label="Adjust recipe servings"><span>Cooking for</span><div><button type="button" id="minusServing" aria-label="One fewer serving">−</button><strong id="servingCount">4</strong><button type="button" id="plusServing" aria-label="One more serving">+</button></div></div>
         </div>
 
@@ -156,8 +166,8 @@
       <section class="playlist-section" id="playlist">
         <div class="wrap playlist-grid">
           <div>
-            <p class="kicker">Bring a vinyl</p><h2>Poly-DJ Brunch</h2>
-            <p>Add one song. Or twenty.</p>
+            <h2>Poly-DJ Brunch</h2>
+            <p>Add songs you'd like to listen during brunching. Then come, connect to the speakers, and play them! :D</p>
             <form class="song-form" id="songForm">
               <div class="field"><label for="songTitle">Song *</label><input id="songTitle" name="title" required placeholder="If I Had $1,000,000" /></div>
               <div class="two-fields"><div class="field"><label for="artist">Artist</label><input id="artist" name="artist" placeholder="Barenaked Ladies" /></div><div class="field"><label for="addedBy">Added by</label><input id="addedBy" name="addedBy" placeholder="Odysseus" /></div></div>
@@ -175,7 +185,7 @@
 
       <section class="gallery-section wrap" id="gallery">
         <div class="section-heading">
-          <div><p class="kicker">Proof it happened</p><h2>Gallery</h2></div>
+          <div><h2>Gallery</h2></div>
           <p>This is our local instagram. Food pictures encouraged.</p>
         </div>
         <form class="upload-form" id="photoForm">
@@ -187,14 +197,9 @@
     </main>
 
     <footer>
-      <div class="wrap footer-inner">
-        <div class="footer-spec"><span>shakshukabrunch.com</span><span>18.10.26</span></div>
-        <div class="footer-signoff">
-          <span class="footer-datum" aria-hidden="true">02</span>
-          <strong>See you soon.</strong>
-          <span class="footer-smile" aria-hidden="true">☻</span>
-        </div>
-        <div class="footer-scale" aria-hidden="true"><span>0</span><i></i><i></i><i></i><i></i><b>1:128</b></div>
+      <div class="footer-ticket">
+        <h2>See you at<br /><span>brunch.</span></h2>
+        <p class="footer-date"><time datetime="2026-10-18T11:30:00+01:00">Sunday, 18 October <span aria-hidden="true">·</span> 11:30</time> <span aria-hidden="true">·</span> Heartfort</p>
       </div>
     </footer>
 

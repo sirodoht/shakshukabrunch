@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">
+  <defs>
+    <g id="ingredient">
+      <circle r="22" fill="#fff9e6" />
+      <circle r="8" fill="#ffd45e" />
+    </g>
+  </defs>
+  <use href="#ingredient" x="60" y="60" />
+  <use href="#ingredient" x="180" y="60" />
+  <use href="#ingredient" x="300" y="60" />
+  <use href="#ingredient" x="180" y="180" />
+  <use href="#ingredient" x="300" y="180" />
+  <use href="#ingredient" x="60" y="300" />
+  <use href="#ingredient" x="180" y="300" />
+  <use href="#ingredient" x="300" y="300" />
+</svg>

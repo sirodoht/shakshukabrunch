@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Shakshuka Brunch//Calendar//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:brunch-20261018@shakshukabrunch.com
+DTSTAMP:20261002T125019Z
+DTSTART:20261018T103000Z
+DTEND:20261018T133000Z
+SUMMARY:Shakshuka Brunch
+LOCATION:Heartfort
+DESCRIPTION:Come for brunch. We're having shakshuka!
+URL:https://shakshukabrunch.com
+END:VEVENT
+END:VCALENDAR
