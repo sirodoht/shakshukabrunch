@@ -28,6 +28,9 @@ export type Song = {
 export type Photo = {
   id: string;
   url: string;
+  previewUrl?: string;
+  previewWidth?: number;
+  previewHeight?: number;
   caption: string;
   uploader: string;
   createdAt: string;
@@ -80,11 +83,13 @@ export function publicState(state: BrunchData, brunchId: string) {
 export class BrunchStore {
   readonly stateFile: string;
   readonly uploadDir: string;
+  readonly previewDir: string;
   private writeQueue: Promise<unknown> = Promise.resolve();
 
   constructor(readonly dataDir: string) {
     this.stateFile = join(dataDir, "state.json");
     this.uploadDir = join(dataDir, "uploads");
+    this.previewDir = join(dataDir, "previews");
   }
 
   private async write(state: DataState) {

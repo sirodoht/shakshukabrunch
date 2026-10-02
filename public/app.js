@@ -1,4 +1,4 @@
-import { activatePrintImages, preparePrintImages, releasePrintImages, restoreScreenImages, schedulePrintImages } from "./print-images.js";
+import { preparePrintImages } from "./print-images.js";
 
 const $ = (selector) => document.querySelector(selector);
 const defaultServings = 4;
@@ -25,10 +25,8 @@ async function printPage() {
   button.textContent = "Preparing to print…";
   try {
     await preparePrintImages($("#galleryGrid"));
-    await activatePrintImages();
     window.print();
   } finally {
-    restoreScreenImages();
     button.innerHTML = label;
     button.disabled = false;
     button.removeAttribute("aria-busy");
@@ -41,8 +39,7 @@ window.addEventListener("keydown", (event) => {
   event.preventDefault();
   void printPage();
 });
-window.addEventListener("beforeprint", () => void activatePrintImages());
-window.addEventListener("afterprint", () => restoreScreenImages());
+window.addEventListener("beforeprint", () => void preparePrintImages($("#galleryGrid")));
 
 function loadAdminMode() {
   try {
@@ -175,9 +172,7 @@ function renderState({ syncRecipe = true } = {}) {
   }).join("") : `<li class="empty-state">Currently silence.</li>`;
 
   const galleryGrid = $("#galleryGrid");
-  releasePrintImages(galleryGrid);
-  galleryGrid.innerHTML = state.photos.length ? state.photos.map((photo, index) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<button class="photo-open" type="button" data-photo-index="${index}" aria-label="View ${escapeHtml(photo.caption || "brunch gallery photo")} full screen"><img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" /></button><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
-  schedulePrintImages(galleryGrid);
+  galleryGrid.innerHTML = state.photos.length ? state.photos.map((photo, index) => `<article class="photo-card">${adminMode || photoOwnerTokens[photo.id] ? `<button class="photo-delete" type="button" data-photo-id="${escapeHtml(photo.id)}" aria-label="Delete this photo">× <span>Delete</span></button>` : ""}<button class="photo-open" type="button" data-photo-index="${index}" aria-label="View ${escapeHtml(photo.caption || "brunch gallery photo")} full screen"><img src="${escapeHtml(photo.previewUrl || photo.url)}"${photo.previewWidth && photo.previewHeight ? ` width="${escapeHtml(photo.previewWidth)}" height="${escapeHtml(photo.previewHeight)}"` : ""} alt="${escapeHtml(photo.caption || "Brunch gallery photo")}" loading="lazy" decoding="async" /></button><p>${escapeHtml(photo.caption || "Untitled brunch moment")}</p><small>by ${escapeHtml(photo.uploader)}</small></article>`).join("") : `<div class="gallery-empty"><span>☀</span><p>No photos yet, please take a photo of me!</p></div>`;
 }
 
 function showLightboxPhoto(index) {

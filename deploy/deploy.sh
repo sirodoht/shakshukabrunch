@@ -50,6 +50,9 @@ getent group deploy >/dev/null || {
 
 chown -R deploy:deploy "$app_dir"
 
+runuser -u deploy -- env PATH="/home/deploy/.bun/bin:/usr/local/bin:/usr/bin:/bin" \
+  bun install --cwd "$app_dir" --frozen-lockfile --production
+
 systemctl cat "$service_name" >/dev/null || {
   echo "The existing $service_name unit was not found." >&2
   exit 1

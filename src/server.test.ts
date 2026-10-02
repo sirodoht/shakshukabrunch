@@ -1,9 +1,10 @@
 import { beforeEach, afterEach, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BrunchStore } from "./data";
 import { createApp } from "./server";
+import sharp from "sharp";
 
 let dataDir: string;
 const token = "a-long-test-owner-token-for-brunch";
@@ -132,21 +133,74 @@ test("RSVP and song writes, ownership checks, and deletes stay within their brun
 
 test("photo uploads and deletions use only the selected brunch's directory", async () => {
   const { app, store } = await setupTwoBrunches();
+  const original = await sharp({ create: { width: 100, height: 50, channels: 3, background: "#f6bd22" } }).jpeg().toBuffer();
   const form = new FormData();
-  form.set("image", new File(["second-photo-bytes"], "photo.jpg", { type: "image/jpeg" }));
+  form.set("image", new File([original], "photo.jpg", { type: "image/jpeg" }));
   form.set("ownerToken", token);
   const response = await app(new Request("http://brunch.test/api/brunches/second-brunch/photos", { method: "POST", body: form }));
   expect(response.status).toBe(201);
   const submitted = await response.json();
   const photo = submitted.photos[0];
   expect(photo.url.startsWith("/uploads/second-brunch/")).toBe(true);
-  expect(await (await app(request(photo.url))).text()).toBe("second-photo-bytes");
+  expect(photo.previewUrl.startsWith("/previews/second-brunch/")).toBe(true);
+  expect(Buffer.from(await (await app(request(photo.url))).arrayBuffer())).toEqual(original);
+  const preview = await app(request(photo.previewUrl));
+  expect(preview.headers.get("Content-Type")).toBe("image/webp");
+  const metadata = await sharp(Buffer.from(await preview.arrayBuffer())).metadata();
+  expect([metadata.width, metadata.height]).toEqual([100, 50]);
   expect((await app(request(`/api/brunches/first-brunch/photos/${photo.id}`, "DELETE", { ownerToken: token }))).status).toBe(404);
-  expect(await (await app(request(photo.url))).text()).toBe("second-photo-bytes");
+  expect((await app(request(`/api/brunches/second-brunch/photos/${photo.id}`, "DELETE", { ownerToken: "wrong" }))).status).toBe(403);
+  expect(Buffer.from(await (await app(request(photo.url))).arrayBuffer())).toEqual(original);
+  expect((await app(request(photo.previewUrl))).status).toBe(200);
   expect((await app(request(`/api/brunches/second-brunch/photos/${photo.id}`, "DELETE", { ownerToken: token }))).status).toBe(200);
   expect((await app(request(photo.url))).status).toBe(404);
+  expect((await app(request(photo.previewUrl))).status).toBe(404);
+  await expect(stat(join(dataDir, photo.url))).rejects.toThrow();
+  await expect(stat(join(dataDir, photo.previewUrl))).rejects.toThrow();
   expect((await store.read()).brunches["second-brunch"].photos).toHaveLength(0);
   expect(await Bun.file(join(dataDir, "uploads", "first-brunch", filename)).text()).toBe("original-photo-bytes");
+});
+
+test("new uploads retain original bytes and provide an oriented 800px preview with browser caching", async () => {
+  const { app, store } = await setupTwoBrunches();
+  const original = await sharp({ create: { width: 2400, height: 1600, channels: 3, background: "#f04b2f" } })
+    .jpeg({ quality: 95 }).withMetadata({ orientation: 6 }).toBuffer();
+  const form = new FormData();
+  form.set("image", new File([original], "portrait.jpg", { type: "image/jpeg" }));
+  form.set("ownerToken", token);
+  const response = await app(new Request("http://brunch.test/api/photos", { method: "POST", body: form }));
+  expect(response.status).toBe(201);
+  const photo = (await response.json()).photos[0];
+  expect([photo.previewWidth, photo.previewHeight]).toEqual([533, 800]);
+  expect(Buffer.from(await (await app(request(photo.url))).arrayBuffer())).toEqual(original);
+  const preview = await app(request(photo.previewUrl));
+  const bytes = Buffer.from(await preview.arrayBuffer());
+  expect(bytes.length).toBeLessThan(original.length);
+  const metadata = await sharp(bytes).metadata();
+  expect([metadata.format, metadata.width, metadata.height]).toEqual(["webp", 533, 800]);
+  expect(preview.headers.get("Cache-Control")).toContain("immutable");
+  const cached = await app(new Request(`http://brunch.test${photo.previewUrl}`, { headers: { "If-None-Match": preview.headers.get("ETag")! } }));
+  expect(cached.status).toBe(304);
+  expect(await cached.text()).toBe("");
+  const head = await app(request(photo.previewUrl, "HEAD"));
+  expect(head.headers.get("Content-Type")).toBe("image/webp");
+  expect(await head.text()).toBe("");
+  expect((await store.read()).brunches["second-brunch"].photos[0].previewUrl).toBe(photo.previewUrl);
+  expect((await app(request(`/previews/unknown-brunch/${filename.replace(".jpg", ".webp")}`))).status).toBe(404);
+  expect((await app(request(`/previews/second-brunch/${filename}`))).status).toBe(404);
+  expect((await app(request("/previews/second-brunch/%2e%2e%2fstate.json"))).status).toBe(404);
+});
+
+test("an unreadable image is rejected without leaving files or a photo record", async () => {
+  const { app, store } = await setupTwoBrunches();
+  const form = new FormData();
+  form.set("image", new File(["not an image"], "broken.jpg", { type: "image/jpeg" }));
+  form.set("ownerToken", token);
+  const response = await app(new Request("http://brunch.test/api/photos", { method: "POST", body: form }));
+  expect(response.status).toBe(400);
+  expect((await store.read()).brunches["second-brunch"].photos).toHaveLength(0);
+  expect(await readdir(join(store.uploadDir, "second-brunch"))).toEqual([]);
+  await expect(stat(join(store.previewDir, "second-brunch"))).rejects.toThrow();
 });
 
 test("concurrent updates to different brunches do not lose data", async () => {

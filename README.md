@@ -8,6 +8,7 @@ scales with confirmed guests, a shared song queue, a live event board, and photo
 ## Run it
 
 ```sh
+bun install
 bun run dev
 ```
 
@@ -36,6 +37,13 @@ Photo files live in `data/uploads/<brunch-id>/`; their URLs are
 `/uploads/<brunch-id>/<filename>`. The main page loads the brunch selected by
 `activeBrunchId`. The archive always loads `first-brunch`, independently of
 which brunch is active.
+
+New photo uploads also get an 800px WebP preview stored in
+`data/previews/<brunch-id>/<uuid>.webp` and served at `/previews/<brunch-id>/<uuid>.webp`.
+The current page uses this same preview for its gallery and printing; opening a
+photo full screen uses the unchanged original. Existing photos without previews
+continue to work. Deleting a photo removes both versions. Image URLs support
+long-lived browser caching and conditional requests.
 
 With the app stopped, create another brunch using:
 

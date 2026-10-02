@@ -2,6 +2,7 @@ import { mkdir, unlink } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { BrunchStore, DataError, FIRST_BRUNCH_ID, imageFilenamePattern, publicState, validBrunchId } from "./data";
 import type { RSVP, Song, Photo } from "./data";
+import sharp from "sharp";
 
 const ROOT = join(import.meta.dir, "..");
 
@@ -160,12 +161,38 @@ export async function createApp({
             if (image.size > 8 * 1024 * 1024) return json({ error: "That photo is over 8 MB. Try a smaller one." }, 400);
             if (ownerToken.length < 20) return json({ error: "Could not create a deletion key for this photo. Please try again." }, 400);
             const extension = ({ "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif" } as Record<string, string>)[image.type] || ".jpg";
-            const filename = `${crypto.randomUUID()}${extension}`;
+            const fileId = crypto.randomUUID();
+            const filename = `${fileId}${extension}`;
+            const previewFilename = `${fileId}.webp`;
+            const original = Buffer.from(await image.arrayBuffer());
+            let preview;
+            try {
+              preview = await sharp(original)
+                .rotate()
+                .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
+                .webp({ quality: 75 })
+                .toBuffer({ resolveWithObject: true });
+            } catch {
+              return json({ error: "Could not read that image. Try a JPEG, PNG, WebP, or GIF photo." }, 400);
+            }
             await mkdir(join(store.uploadDir, brunchId), { recursive: true });
-            await Bun.write(join(store.uploadDir, brunchId, filename), image);
+            await mkdir(join(store.previewDir, brunchId), { recursive: true });
+            const originalPath = join(store.uploadDir, brunchId, filename);
+            const previewPath = join(store.previewDir, brunchId, previewFilename);
+            try {
+              await Bun.write(originalPath, original);
+              await Bun.write(previewPath, preview.data);
+            } catch (error) {
+              await unlink(originalPath).catch(() => undefined);
+              await unlink(previewPath).catch(() => undefined);
+              throw error;
+            }
             const photo: Photo = {
               id: crypto.randomUUID(),
               url: `/uploads/${brunchId}/${filename}`,
+              previewUrl: `/previews/${brunchId}/${previewFilename}`,
+              previewWidth: preview.info.width,
+              previewHeight: preview.info.height,
               caption: clean(form.get("caption"), 180),
               uploader: clean(form.get("uploader"), 80) || "Anonymous brunch artist",
               createdAt: new Date().toISOString(),
@@ -192,6 +219,12 @@ export async function createApp({
             if (photo.url === `/uploads/${brunchId}/${filename}` && imageFilenamePattern.test(filename)) {
               await unlink(join(store.uploadDir, brunchId, filename)).catch(() => undefined);
             }
+            if (photo.previewUrl) {
+              const previewFilename = photo.previewUrl.slice(`/previews/${brunchId}/`.length);
+              if (photo.previewUrl === `/previews/${brunchId}/${previewFilename}` && imageFilenamePattern.test(previewFilename)) {
+                await unlink(join(store.previewDir, brunchId, previewFilename)).catch(() => undefined);
+              }
+            }
             return json(publicState(state, brunchId));
           }
 
@@ -200,9 +233,10 @@ export async function createApp({
         });
       }
 
-      if (url.pathname.startsWith("/uploads/") && ["GET", "HEAD"].includes(request.method)) {
-        const parts = url.pathname.slice("/uploads/".length).split("/");
-        if (parts.length === 1 && imageFilenamePattern.test(parts[0])) {
+      if ((url.pathname.startsWith("/uploads/") || url.pathname.startsWith("/previews/")) && ["GET", "HEAD"].includes(request.method)) {
+        const isPreview = url.pathname.startsWith("/previews/");
+        const parts = url.pathname.slice(isPreview ? "/previews/".length : "/uploads/".length).split("/");
+        if (!isPreview && parts.length === 1 && imageFilenamePattern.test(parts[0])) {
           // Old first-brunch photo links remain valid after the migration.
           return new Response(null, {
             status: 308,
@@ -210,15 +244,23 @@ export async function createApp({
           });
         }
         const [brunchId, filename] = parts;
-        if (parts.length !== 2 || !validBrunchId(brunchId) || !imageFilenamePattern.test(filename)) {
+        if (parts.length !== 2 || !validBrunchId(brunchId) || !imageFilenamePattern.test(filename) || (isPreview && !filename.endsWith(".webp"))) {
           return new Response("Not found", { status: 404 });
         }
         const state = await store.read();
         if (!Object.hasOwn(state.brunches, brunchId)) return new Response("Not found", { status: 404 });
-        const file = Bun.file(join(store.uploadDir, brunchId, filename));
+        const file = Bun.file(join(isPreview ? store.previewDir : store.uploadDir, brunchId, filename));
         if (!(await file.exists())) return new Response("Not found", { status: 404 });
+        const headers = {
+          "Content-Type": file.type,
+          "Cache-Control": "public, max-age=31536000, immutable",
+          "ETag": `"${file.size}-${file.lastModified}"`,
+        };
+        if (request.headers.get("If-None-Match") === headers.ETag) {
+          return new Response(null, { status: 304, headers });
+        }
         return new Response(request.method === "HEAD" ? null : file, {
-          headers: { "Content-Type": file.type },
+          headers,
         });
       }
 

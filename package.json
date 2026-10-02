@@ -9,5 +9,8 @@
     "brunch:create": "bun scripts/create-brunch.ts",
     "test": "bun test",
     "check": "bun build src/server.ts --target bun --outdir /tmp/shakshuka-server-check && bun build public/app.js --target browser --outdir /tmp/shakshuka-browser-check && bun build public/first-brunch/app.js --target browser --outdir /tmp/shakshuka-archive-check"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
   }
 }
